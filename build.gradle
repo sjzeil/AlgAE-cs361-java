@@ -22,8 +22,12 @@ subprojects {
         implementation 'edu.odu.cs.algae:algae-client-server:4.5'
     }
 
-
-
+    def coursePath = '/home/zeil/courses/cs361/latest/Directory/animations/'
+    task deployToCourse (type: Copy, dependsOn: ['jar']) {
+        from 'build/libs/'
+        into coursePath
+        rename { String fileName -> fileName.replace("-$project.version","")}
+    }
 
     // Publishing
 
