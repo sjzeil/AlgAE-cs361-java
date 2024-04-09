@@ -1,1 +1,5 @@
-/ant.log
+**/build/
+**/bin/
+**/.gradle/
+**/*.log
+

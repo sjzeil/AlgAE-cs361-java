@@ -6,11 +6,7 @@ import edu.odu.cs.AlgAE.Server.Utilities.DiscreteInteger;//!
 import edu.odu.cs.AlgAE.Server.Utilities.Index;//!
 
 
-public class ArrayOperations {//!
-	
-	
-//!#ifndef ARRAYOPS_H
-//!#define ARRAYOPS_H
+public class Utilities {
 	
 
 /*
@@ -24,48 +20,37 @@ public class ArrayOperations {//!
 *  - and that the "true" size of the array is at least one larger 
 *      than the current value of that counter
 *
-*  @param array array into which to add an element
+*  @param value value to add into the array
+*  @param intoArray array into which to add an element
 *  @param size  number of data elements in hte array. Must be less than
 *               the number of elements allocated for the array. Incremented
 *               upon output from this function.
-*  @param value value to add into the array
 *  @return the position where the element was added
 */
-
-//!template <typename Comparable>
-public Index addInOrder (DiscreteInteger[] array, int size, int value)//!
-//!int addInOrder (Comparable* array, int& size, Comparable value)
-{
-	 ActivationRecord arec = activate(ArrayOperations.class);//!
-	 arec.refParam("array", array).refParam("size", size).param("value", value).breakHere("starting addInOrder");//!
-	// Make room for the insertion
-    //!  int toBeMoved = size - 1;
-	 Index toBeMoved = new Index(size - 1, array);//!
-	 arec.var("toBeMoved", toBeMoved).breakHere("start at high end of the data");//!
-	//!  while (toBeMoved >= 0 && value < array[toBeMoved]) {
-	 while (toBeMoved.get() >= 0 && value < array[toBeMoved.get()].get()) {//!
+public static Index insertInOrder (int value, DiscreteInteger[] intoArray, int size) {//!
+//!public static int insertInOrder (int value, int[] intoArray, int size) {
+	 ActivationRecord arec = activate(Utilities.class);//!
+	 arec.param("value", value).refParam("intoArray", intoArray).param("size", size).breakHere("starting addInOrder");//!
+//!     int i = size;
+	 Index i = new Index(size, intoArray);//!
+	 arec.var("i", i).breakHere("start at high end of the data");//!
+//!     while(i > 0 && value < intoArray[i-1]) {
+	 while (i.get() >= 0 && value < intoArray[i.get()-1].get()) {//!
 		arec.breakHere("in loop: ready to move an element up");//!
-	//!    array[toBeMoved+1] = array[toBeMoved];
-		  if (toBeMoved.get()+1 >= array.length) {//!
-			 arec.breakHere("array is already full - program may crash");//!
-			 return toBeMoved;//!
-		   }//!
-	  array[toBeMoved.get()+1] = array[toBeMoved.get()];//!
+	//!    intoArray[i] = intoArray[i-1];
+	  intoArray[i.get()] = intoArray[i.get()-1];//!
       arec.breakHere("in loop: Moved the element");//!
-	//!    --toBeMoved;
-	  toBeMoved.set (toBeMoved.get() - 1);//!
+	//!    --i;
+	  i.set (i.get() - 1);//!
       arec.breakHere("in loop: decremented");//!
 	 }
 	// Insert the new value
 	 arec.breakHere("exited loop: insert the new value");//!
-	//!  array[toBeMoved+1] = value;
-	 array[toBeMoved.get()+1] = new DiscreteInteger(value);//!
+	//!  intoArray[i] = value;
+	 intoArray[i.get()] = new DiscreteInteger(value);//!
 	 arec.breakHere("Inserted new value");//!
-	//!  ++size;
-	 size = size  + 1;//!
-	 arec.breakHere("Incremented size");//!
-	//!  return toBeMoved+1;
-	 return new Index(toBeMoved.get()+1, array);//!
+	//!  return i;
+	 return new Index(i.get(), intoArray);//!
 }
 
 
@@ -86,7 +71,7 @@ public Index addInOrder (DiscreteInteger[] array, int size, int value)//!
 //!int seqSearch(const T list[], int listLength, T searchItem)
 public Index seqSearch(DiscreteInteger list[], int listLength, int searchItem)//!
 {
-	ActivationRecord arec = activate(ArrayOperations.class);//!
+	ActivationRecord arec = activate(Utilities.class);//!
 	arec.refParam("list", list).param("listLength", listLength).param("searchItem", searchItem).breakHere("starting seqSearch");//!
 //!    int loc;
   Index loc = new Index(-1, list);//!
@@ -118,7 +103,7 @@ public Index seqSearch(DiscreteInteger list[], int listLength, int searchItem)//
 //!int seqOrderedSearch(const Comparable list[], int listLength, Comparable searchItem)
 public Index seqOrderedSearch(DiscreteInteger list[], int listLength, int searchItem)//!
 {
-	ActivationRecord arec = activate(ArrayOperations.class);//!
+	ActivationRecord arec = activate(Utilities.class);//!
 	arec.refParam("list", list).param("listLength", listLength).param("searchItem", searchItem).breakHere("starting seqOrderedSearch");//!
 //!    int loc = 0;
   Index loc = new Index(0, list);//!
@@ -161,7 +146,7 @@ public Index seqOrderedSearch(DiscreteInteger list[], int listLength, int search
 //!void removeElement (T* array, int& size, int index)
 public void removeElement (DiscreteInteger[] array, int size, Index index)//!
 {
- ActivationRecord arec = activate(ArrayOperations.class);//!
+ ActivationRecord arec = activate(Utilities.class);//!
  arec.refParam("array", array).refParam("size", size).param("index", index).breakHere("starting removeElement");//!
  if (index.get() < 0 || index.get() >= array.length) { //!
 	   arec.breakHere("index is out of bounds - program may crash");//!

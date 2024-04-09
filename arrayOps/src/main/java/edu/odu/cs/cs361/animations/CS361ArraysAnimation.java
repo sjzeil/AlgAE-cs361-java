@@ -103,7 +103,7 @@ public void selected() {
          String value = promptForInput("Value to search for:", "[0-9]+");
          try {
                Integer v = Integer.parseInt(value);
-               int k = new ArrayOperations().binarySearch(array, size, v);
+               int k = new Utilities().binarySearch(array, size, v);
                 out.println ("binarySearch returned " + k);
              } catch (Exception e) {
 // do nothing
@@ -118,7 +118,7 @@ public void selected() {
        String value = promptForInput("Value to search for:", "[0-9]+");
        try {
              Integer v = Integer.parseInt(value);
-             Index k = new ArrayOperations().seqOrderedSearch(array, size, v);
+             Index k = new Utilities().seqOrderedSearch(array, size, v);
              out.println ("seqorderedSearch returned " + k);
              } catch (Exception e) {
              // do nothing
@@ -134,7 +134,7 @@ public void selected() {
        String value = promptForInput("Value to search for:", "[0-9]+");
        try {
              Integer v = Integer.parseInt(value);
-             Index k = new ArrayOperations().seqSearch(array, size, v);
+             Index k = new Utilities().seqSearch(array, size, v);
              out.println ("seqSearch returned " + k);
              } catch (Exception e) {
                 System.err.println ("Unexpected exception from animated code: " + e);
@@ -143,13 +143,14 @@ public void selected() {
 });
 
 
-register ("add in order", new MenuFunction() {
+register ("insert in order", new MenuFunction() {
 @Override
 public void selected() {
      String value = promptForInput("Value to add:", "[0-9]+");
      try {
           Integer v = Integer.parseInt(value);
-          new ArrayOperations().addInOrder(array, size, v);
+          Utilities.insertInOrder(v, array, size);
+          ++size;
          } catch (Exception e) {
          // do nothing
          }
