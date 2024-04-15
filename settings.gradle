@@ -8,6 +8,7 @@ pluginManagement {
     }
 }
 
+include 'arrayList'
 include 'arrayOps'
 /*
 include 'avl'
@@ -27,5 +28,4 @@ include 'singlyLinkedLists'
 include 'sorting'
 include 'stacks'
 include 'trees'
-include 'vectors'
 */

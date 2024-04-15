@@ -1,0 +1,11 @@
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'CS361/ArrayList_Implementation',
+           'Implementation-Version': version,
+            'Main-Class': 'edu.odu.cs.cs361.animations.ArrayListAnimation'
+    }
+    from { configurations.runtimeClasspath.collect {
+         it.isDirectory() ? it : zipTree(it) } }
+	from sourceSets.main.java
+}
