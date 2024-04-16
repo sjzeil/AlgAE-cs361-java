@@ -439,12 +439,18 @@ public class ArrayList<E> extends AbstractList<E>
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public void add(int index, E element) {
+        ActivationRecord aRec = activate(this);//!
+        aRec.param("index",index).param("element", element).breakHere("starting add at index");//!
         rangeCheckForAdd(index);
+        aRec.breakHere("Check to see if we need more room");//!
         growIfNecessary();
+        aRec.breakHere("Open up a 'hole' into which we can insert the element");//!
         System.arraycopy(data, index, data, index + 1,
                 size - index);
+        aRec.breakHere("Insert the element");//!
         data[index] = element;
         size++;
+        aRec.breakHere("Done with add");
     }
 
     /**
@@ -457,16 +463,23 @@ public class ArrayList<E> extends AbstractList<E>
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public E remove(int index) {
+        ActivationRecord aRec = activate(this);//!
+        aRec.param("index", index).breakHere("starting remove");//!
         rangeCheck(index);
 
         E oldValue = elementData(index);
 
         int numMoved = size - index - 1;
-        if (numMoved > 0)
+        aRec.var("oldValue", oldValue).var("numMoved", numMoved).breakHere("Computed number of element to move.");//!
+        if (numMoved > 0) {
             System.arraycopy(data, index + 1, data, index,
                     numMoved);
+            aRec.breakHere("moved elements down to fill the 'hole' left by removing element " + index);//!
+        }
         data[--size] = null; // clear to let GC do its work
+        data[size] = "??";//!
 
+        aRec.breakHere("done with remove");//!
         return oldValue;
     }
 
@@ -517,12 +530,14 @@ public class ArrayList<E> extends AbstractList<E>
      * be empty after this call returns.
      */
     public void clear() {
+        ActivationRecord aRec = activate(this);//!
+        aRec.breakHere("starting clear");//!
         // clear to let GC do its work
-        for (int i = 0; i < size; i++)
-            data[i] = null;
+        Arrays.fill(data, null);
 
         size = 0;
         fake_fill(data);//!
+        aRec.breakHere("done with clear");//!
     }
 
     /**
@@ -613,16 +628,25 @@ public class ArrayList<E> extends AbstractList<E>
      * which throws an ArrayIndexOutOfBoundsException if index is negative.
      */
     private void rangeCheck(int index) {
-        if (index >= size)
+        ActivationRecord aRec = activate(this);//!
+        aRec.param("index", index).breakHere("starting rangeCheck");//!
+
+        if (index >= size) {
+            aRec.breakHere("failed rangeCheck");//!
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+        }
     }
 
     /**
      * A version of rangeCheck used by add and addAll.
      */
     private void rangeCheckForAdd(int index) {
-        if (index > size || index < 0)
+        ActivationRecord aRec = activate(this);//!
+        aRec.param("index", index).breakHere("starting rangeCheckForAdd");//!
+        if (index > size || index < 0) {
+            aRec.breakHere("failed rangeCheckForAdd");//!
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+        }
     }
 
     /**

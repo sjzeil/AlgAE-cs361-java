@@ -55,7 +55,7 @@ public class ArrayListAnimation extends LocalJavaAnimation {
 		});
 
 				
-		register ("a.add(...)", new MenuFunction() {
+		register ("a.add(element)", new MenuFunction() {
 			@Override
 			public void selected() {
 				String value = promptForInput("Value to add:", "[0-9]+");
@@ -68,16 +68,40 @@ public class ArrayListAnimation extends LocalJavaAnimation {
 			}
 		});
 
-
-/*
-		register ("a.clear()", new MenuFunction() {
+		register ("a.add(index, element)", new MenuFunction() {
 			@Override
 			public void selected() {
-				a.clear();
+				String value = promptForInput("Value to add:", "[0-9]+");
+				try {
+					Integer v = Integer.parseInt(value);
+                    value = promptForInput("position at which to add:", "[0-9]+");
+                    int index = Integer.parseInt(value);
+                    if (index >= 0 && index <= a.size()) {
+					    a.add (index, v.intValue());
+                    }
+				} catch (Exception e) {
+					// do nothing
+				}
 			}
 		});
 
-*/
+
+		register ("a.remove(index)", new MenuFunction() {
+			@Override
+			public void selected() {
+				String value = promptForInput("position from which to remove:", "[0-9]+");
+				try {
+                    int index = Integer.parseInt(value);
+                    if (index >= 0 && index <= a.size()) {
+					    a.remove (index);
+                    }
+				} catch (Exception e) {
+					// do nothing
+				}
+			}
+		});
+
+
 
     }
 	
