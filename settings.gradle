@@ -10,12 +10,12 @@ pluginManagement {
 
 include 'arrayList'
 include 'arrayOps'
+include 'doublyLinkedLists'
 /*
 include 'avl'
 include 'bst'
 include 'bstIterators'
 include 'dijkstraPrim'
-include 'doublyLinkedLists'
 include 'graphColoring'
 include 'graphTraversal'
 include 'hashchain'

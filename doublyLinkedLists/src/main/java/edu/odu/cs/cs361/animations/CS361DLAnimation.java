@@ -3,10 +3,13 @@ package edu.odu.cs.cs361.animations;
 
 
 import static edu.odu.cs.AlgAE.Server.LocalServer.activate;
+
+import java.util.Arrays;
+import java.util.ListIterator;
+
 import edu.odu.cs.AlgAE.Animations.LocalJavaAnimation;
 import edu.odu.cs.AlgAE.Server.MenuFunction;
 import edu.odu.cs.AlgAE.Server.MemoryModel.ActivationRecord;
-import edu.odu.cs.cs361.animations.LList.iterator;
 
 public class CS361DLAnimation extends LocalJavaAnimation {
 
@@ -23,8 +26,8 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 	}
 
 
-	private LList list;
-	private LList.iterator iter;
+	private LinkedList<String> list;
+	private ListIterator<String> iter;
 	
 	
 	@Override
@@ -35,46 +38,45 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 			
 			@Override
 			public void selected() {
-				
-				list = new LList();
-				list.setUp();
-				iter = list.Qbegin();
+				String[] initialContent = {"Adams", "Baker", "Charles"};
+				list = new LinkedList<>(Arrays.asList(initialContent));
+				iter = list.listIterator();
 				globalVar("list", list);
 				globalVar("iter", iter);
 	        	
 			}
 		});
 		
-		register ("push_Back", new MenuFunction() {
+		register ("addLast", new MenuFunction() {
 			@Override
 			public void selected() {
 				String value = promptForInput("Value to add:", ".+");
-				list.push_back (value);
+				list.addLast(value);
 			}
 		});
 
 
-		register ("push_Front", new MenuFunction() {
+		register ("addFirst", new MenuFunction() {
 			@Override
 			public void selected() {
 				String value = promptForInput("Value to add:", ".+");
-				list.push_front (value);
+				list.addFirst (value);
 			}
 		});
 		
 		
-		register ("pop_Back", new MenuFunction() {
+		register ("removeLast", new MenuFunction() {
 			@Override
 			public void selected() {
-				list.pop_back ();
+				list.removeLast();
 			}
 		});
 
 
-		register ("pop_Front", new MenuFunction() {
+		register ("removeFirst", new MenuFunction() {
 			@Override
 			public void selected() {
-				list.pop_front ();
+				list.removeFirst ();
 			}
 		});
 		
@@ -89,7 +91,10 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 		register ("Reset the list", new MenuFunction() {
 			@Override
 			public void selected() {
-				list.setUp();
+				String[] initialContent = {"Adams", "Baker", "Charles"};
+                list.clear();
+                list.addAll(Arrays.asList(initialContent));
+
 			}
 		});
 
@@ -105,66 +110,64 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 			@Override
 			public void selected() {
 				String value = promptForInput("Value to search for:", ".+");
-				iter.current = list.findQ (value);
-				if (iter.current != null) {
-					out.println("Found it!");
-				}
-			}
+				iter = list.listIterator();
+                while (iter.hasNext()) {
+                    String v = iter.next();
+                    if (v.equals(value)) {
+                        out.println("Found it!");
+                        break;
+                    }
+                }
+            }
 		});
 
-		register ("iter = list.begin()", new MenuFunction() {
+		register ("iter = list.listIterator()", new MenuFunction() {
 			@Override
 			public void selected() {
-				iter.current = list.head.next;
+				iter = list.listIterator();
 			}
 		});
 
-		register ("iter = list.end()", new MenuFunction() {
-			@Override
-			public void selected() {
-				iter.current = list.tail;
-			}
-		});
 
-		register ("iter++", new MenuFunction() {
+		register ("advance iter", new MenuFunction() {
 			@Override
 			public void selected() {
 				try {
-					iter.increment();
+					iter.next();
 				} catch (Exception e) {
 					// ignore
 				}
 			}
 		});
 
-		register ("iter--", new MenuFunction() {
+		register ("step iter back", new MenuFunction() {
 			@Override
 			public void selected() {
 				try {
-					iter.decrement();
+					iter.previous();
 				} catch (Exception e) {
 					// ignore
 				}
 			}
 		});
 
-		register ("insert(iter, ...)", new MenuFunction() {
+		register ("iter.add(value)", new MenuFunction() {
 			@Override
 			public void selected() {
 				String value = promptForInput("Value to insert:", ".+");
 				try {
-					list.insert(iter, value);
+					iter.add(value);
 				} catch (Exception e) {
 					// ignore
 				}
 			}
 		});
 
-		register ("erase(iter)", new MenuFunction() {
+		register ("iter.remove()", new MenuFunction() {
 			@Override
 			public void selected() {
 				try {
-					list.erase(iter);
+					iter.remove();
 				} catch (Exception e) {
 					// ignore
 				}
@@ -174,19 +177,19 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 	}
 		
 
-	void traverse(LList alist) //!void traverse(const list<string>& alist)
+	void traverse(LinkedList<String> aList) //!void traverse(const list<string>& alist)
 	{
-		ActivationRecord arec = activate(getClass());//!
-	    arec.refParam("alist",alist).breakHere("starting traversal");//!
-	    iterator pos = alist.begin();//!    list<string>::const_iterator pos = alist.begin();
-	    arec.var("pos", pos).breakHere("Got the starting position");//!
-	    while (pos.IsNotEqual(alist.end()))//!    while (pos != alist.end())
+		ActivationRecord aRec = activate(getClass());//!
+	    aRec.refParam("aList",aList).breakHere("starting traversal");//!
+	    ListIterator<String> pos = aList.listIterator();//!    list<string>::const_iterator pos = alist.begin();
+	    aRec.var("pos", pos).breakHere("Got the starting position");//!
+	    while (pos.hasNext())
 		{
-	        out.println(pos.get());//!        cout << pos->data << endl;
-	        arec.breakHere("Ready to step forward");//!
-	        pos.increment();//!        ++pos;
+	        aRec.breakHere("Ready to step forward");//!
+            String value = pos.next();
+	        aRec.var("value", value).breakHere("Stepped forward");//!
 		}
-	    arec.breakHere("Traversal completed");//!
+	    aRec.breakHere("Traversal completed");//!
 	}
 
 	
