@@ -143,13 +143,22 @@ public class LinkedList<E> extends AbstractList<E>
      * Links e as first element.
      */
     private void linkFirst(E e) {
+        ActivationRecord aRec = activate(this);//!
+        aRec.param("e", e).breakHere("starting linkFirst");//!
         final Node<E> f = first;
+        aRec.refVar("f", f).breakHere("saved old first value");//!
         final Node<E> newNode = new Node<>(null, e, f);
+        aRec.refVar("newNode", newNode).breakHere("created new node");//!
         first = newNode;
-        if (f == null)
+        aRec.breakHere("the new node is the new 'first'");//!
+        if (f == null) {
             last = newNode;
-        else
+            aRec.breakHere("and is also the new 'last'");//!
+        } else {
             f.prev = newNode;
+            aRec.breakHere("added pointer back to the new node");//!
+        }
+        aRec.breakHere("Finally, increment the list size");//!
         size++;
     }
 
@@ -157,14 +166,22 @@ public class LinkedList<E> extends AbstractList<E>
      * Links e as last element.
      */
     void linkLast(E e) {
+        ActivationRecord aRec = activate(this);//!
+        aRec.param("e", e).breakHere("starting linkLast");//!
         final Node<E> l = last;
         final Node<E> newNode = new Node<>(l, e, null);
+        aRec.refVar("l", l).refVar("newNode", newNode).breakHere("Created newNode");//!
         last = newNode;
-        if (l == null)
+        aRec.refVar("l", l).refVar("newNode", newNode).breakHere("newNode is the new 'last'");//!
+        if (l == null) {
+            aRec.refVar("l", l).refVar("newNode", newNode).breakHere("newNode is also the new 'first'");//!
             first = newNode;
-        else
+        } else {
+            aRec.refVar("l", l).refVar("newNode", newNode).breakHere("newNode follow the old 'last'");//!
             l.next = newNode;
+        }
         size++;
+        aRec.param("e", e).breakHere("completed linkLast");//!
     }
 
     /**
@@ -172,13 +189,22 @@ public class LinkedList<E> extends AbstractList<E>
      */
     void linkBefore(E e, Node<E> succ) {
         // assert succ != null;
+        ActivationRecord aRec = activate(this);//!
+        aRec.param("e", e).refParam("succ", succ).breakHere("starting linkBefore");//!
         final Node<E> pred = succ.prev;
+        aRec.refVar("pred", "pred").breakHere("Save the prior node location.");//!
         final Node<E> newNode = new Node<>(pred, e, succ);
+        aRec.refVar("newNode", newNode).breakHere("Created the new node.");//!
         succ.prev = newNode;
-        if (pred == null)
+        aRec.breakHere("point back to this new node");//!
+        if (pred == null) {
             first = newNode;
-        else
+            aRec.breakHere("new node is the new first");//!
+        } else {
             pred.next = newNode;
+            aRec.breakHere("point forward to this new node");//!
+        }
+        aRec.breakHere("Increment size.");//!
         size++;
     }
 
@@ -186,16 +212,24 @@ public class LinkedList<E> extends AbstractList<E>
      * Unlinks non-null first node f.
      */
     private E unlinkFirst(Node<E> f) {
+        ActivationRecord aRec = activate(this);//!
+        aRec.refParam("f", f).breakHere("Starting unlinkFirst");//!
         // assert f == first && f != null;
         final E element = f.item;
         final Node<E> next = f.next;
-        f.item = null;
-        f.next = null; // help GC
+        aRec.var("element", element).refVar("next", next).breakHere("Saved element and next location.");//!
+//        f.item = null;//!
+//        f.next = null; // help GC//!
         first = next;
-        if (next == null)
+        aRec.breakHere("move 'first' forward one position");//!
+        if (next == null) {
             last = null;
-        else
+            aRec.breakHere("We just cleared out the list.");//!
+        } else {
             next.prev = null;
+            aRec.breakHere("The new 'first' should not point backwards to another node.");//!
+        }
+        aRec.breakHere("decrement list size and return the removed element");
         size--;
         return element;
     }
@@ -204,16 +238,24 @@ public class LinkedList<E> extends AbstractList<E>
      * Unlinks non-null last node l.
      */
     private E unlinkLast(Node<E> l) {
+        ActivationRecord aRec = activate(this);//!
         // assert l == last && l != null;
+        aRec.refParam("l", l).breakHere("starting unlinkLast");//!
         final E element = l.item;
         final Node<E> prev = l.prev;
-        l.item = null;
-        l.prev = null; // help GC
+        aRec.var("element", element).refVar("prev", prev).breakHere("Saved element and next-to-last node");//!
+//!        l.item = null;//!
+//!        l.prev = null; // help GC//!
         last = prev;
-        if (prev == null)
+        aRec.breakHere("moved last back one position");//!
+        if (prev == null) {
             first = null;
-        else
+            aRec.breakHere("We just emptied out the list");//!
+        } else {
             prev.next = null;
+            aRec.breakHere("The new 'last' should not point to the old one.");//!
+        }
+        aRec.breakHere("Decrement the size & return the removed element");//!
         size--;
         return element;
     }
@@ -279,9 +321,13 @@ public class LinkedList<E> extends AbstractList<E>
      * @throws NoSuchElementException if this list is empty
      */
     public E removeFirst() {
+        ActivationRecord aRec = activate(this);//!
+        aRec.breakHere("starting removeFirst");//!
         final Node<E> f = first;
+        aRec.refVar("f", f).breakHere("Look at first");//!
         if (f == null)
             throw new NoSuchElementException();
+        aRec.breakHere("unlink it");//!
         return unlinkFirst(f);
     }
 
@@ -292,9 +338,13 @@ public class LinkedList<E> extends AbstractList<E>
      * @throws NoSuchElementException if this list is empty
      */
     public E removeLast() {
+        ActivationRecord aRec = activate(this);//!
+        aRec.breakHere("Starting removeLast");//!
         final Node<E> l = last;
+        aRec.refVar("l", l).breakHere("Saved old 'last' value");//!
         if (l == null)
             throw new NoSuchElementException();
+        aRec.breakHere("unlink the last node");//!
         return unlinkLast(l);
     }
 
@@ -304,7 +354,10 @@ public class LinkedList<E> extends AbstractList<E>
      * @param e the element to add
      */
     public void addFirst(E e) {
+        ActivationRecord aRec = activate(this);//!
+        aRec.param("e",e).breakHere("addFirst");//!
         linkFirst(e);
+        aRec.param("e",e).breakHere("finished addFirst");//!
     }
 
     /**
@@ -316,7 +369,10 @@ public class LinkedList<E> extends AbstractList<E>
      * @param e the element to add
      */
     public void addLast(E e) {
+        ActivationRecord aRec = activate(this);//!
+        aRec.param("e", e).breakHere("starting addLast");//!
         linkLast(e);
+        aRec.breakHere("completed addLast");//!
     }
 
     /**
@@ -898,17 +954,27 @@ public class LinkedList<E> extends AbstractList<E>
             nextIndex = index;
         }
 
+        public void reset(LinkedList<E> list) {//!
+            next = list.first;//!
+            lastReturned = null;//!
+            nextIndex = 0;//!
+        }//!
+//!
         public boolean hasNext() {
             return nextIndex < size;
         }
 
         public E next() {
+            ActivationRecord aRec = activate(this);//!
+            aRec.breakHere("Can we move forward?");//!
             if (!hasNext())
                 throw new NoSuchElementException();
 
             lastReturned = next;
+            aRec.breakHere("Follow the next link.");//!
             next = next.next;
-            nextIndex++;
+            nextIndex++;//!
+            aRec.breakHere("And return the 'old' next value.");//!
             return lastReturned.item;
         }
 
@@ -917,11 +983,15 @@ public class LinkedList<E> extends AbstractList<E>
         }
 
         public E previous() {
+            ActivationRecord aRec = activate(this);//!
+            aRec.breakHere("Can we move backward?");//!
             if (!hasPrevious())
                 throw new NoSuchElementException();
 
+            aRec.breakHere("Follow the prev link.");//!
             lastReturned = next = (next == null) ? last : next.prev;
-            nextIndex--;
+            nextIndex--;//!
+            aRec.breakHere("And return the old value.");//!
             return lastReturned.item;
         }
 
@@ -934,16 +1004,21 @@ public class LinkedList<E> extends AbstractList<E>
         }
 
         public void remove() {
+            ActivationRecord aRec = activate(this);//!
+            aRec.breakHere("Beginning the listIterator remove");//!
             if (lastReturned == null)
                 throw new IllegalStateException();
 
             Node<E> lastNext = lastReturned.next;
+            aRec.refVar("lastNext", lastNext).breakHere("Saved next pointer");//!
             unlink(lastReturned);
+            aRec.breakHere("unlinked");//!
             if (next == lastReturned)
                 next = lastNext;
             else
                 nextIndex--;
             lastReturned = null;
+            aRec.breakHere("done removing");//!
         }
 
         public void set(E e) {
@@ -953,11 +1028,18 @@ public class LinkedList<E> extends AbstractList<E>
         }
 
         public void add(E e) {
+            ActivationRecord aRec = activate(this);//!
+            aRec.param("e", e).breakHere("Beginning the listIterator add");//!
             lastReturned = null;
-            if (next == null)
+            aRec.breakHere("if the list is empty");//!
+            if (next == null) {
+                aRec.breakHere("add as first and last");//!
                 linkLast(e);
-            else
+            } else {
+                aRec.breakHere("add in place");//!
                 linkBefore(e, next);
+            }
+            aRec.breakHere("done adding");//!
             nextIndex++;
         }
 
@@ -985,11 +1067,11 @@ public class LinkedList<E> extends AbstractList<E>
         public List<Component> getComponents(LinkedList<E>.ListItr arg0) {
             SimpleReference lr = new SimpleReference(lastReturned);
             SimpleReference nextR = new SimpleReference(next);
-            Component nextIndexC = new Component(nextIndex, "nextIndex");
+            //Component nextIndexC = new Component(nextIndex, "nextIndex");
             List<Component> components= new java.util.ArrayList<>();
             components.add(new Component(lr, "lastReturned"));
             components.add(new Component(nextR, "next"));
-            components.add(nextIndexC);
+            //components.add(nextIndexC);
             return components;
         }
 
@@ -1046,7 +1128,7 @@ public class LinkedList<E> extends AbstractList<E>
         @Override
         public List<Component> getComponents(Node<E> node) {
             List<Component> components = new java.util.ArrayList<>();
-            Component c1 = new Component(node.item, "item");
+            Component c1 = new Component((node.item == null)? "" : node.item, "item");
             components.add(c1);
             return components;
         }
@@ -1266,5 +1348,10 @@ public class LinkedList<E> extends AbstractList<E>
     public Renderer<LinkedList<E>> getRenderer() {
         return this;
     }
+
+    public void resetIterator(ListIterator<E> iter) {//!
+        ListItr it = (ListItr)iter;//!
+        it.reset(this);//!
+    }//!
 
 }

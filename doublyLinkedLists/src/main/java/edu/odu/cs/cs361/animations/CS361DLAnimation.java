@@ -43,7 +43,6 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 				iter = list.listIterator();
 				globalVar("list", list);
 				globalVar("iter", iter);
-	        	
 			}
 		});
 		
@@ -69,6 +68,7 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 			@Override
 			public void selected() {
 				list.removeLast();
+                list.resetIterator(iter);
 			}
 		});
 
@@ -77,6 +77,7 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 			@Override
 			public void selected() {
 				list.removeFirst ();
+                list.resetIterator(iter);
 			}
 		});
 		
@@ -84,6 +85,7 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 			@Override
 			public void selected() {
 				list.clear ();
+                list.resetIterator(iter);
 			}
 		});
 
@@ -94,7 +96,7 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 				String[] initialContent = {"Adams", "Baker", "Charles"};
                 list.clear();
                 list.addAll(Arrays.asList(initialContent));
-
+                list.resetIterator(iter);
 			}
 		});
 
@@ -109,27 +111,20 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 		register ("move iter (search)", new MenuFunction() {
 			@Override
 			public void selected() {
-				String value = promptForInput("Value to search for:", ".+");
-				iter = list.listIterator();
-                while (iter.hasNext()) {
-                    String v = iter.next();
-                    if (v.equals(value)) {
-                        out.println("Found it!");
-                        break;
-                    }
-                }
+                String value = promptForInput("Value to search for:", ".+");//!
+                searchList(value);
             }
 		});
 
 		register ("iter = list.listIterator()", new MenuFunction() {
 			@Override
 			public void selected() {
-				iter = list.listIterator();
+				list.resetIterator(iter);
 			}
 		});
 
 
-		register ("advance iter", new MenuFunction() {
+		register ("iter.next()", new MenuFunction() {
 			@Override
 			public void selected() {
 				try {
@@ -140,7 +135,7 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 			}
 		});
 
-		register ("step iter back", new MenuFunction() {
+		register ("iter.previous()", new MenuFunction() {
 			@Override
 			public void selected() {
 				try {
@@ -176,6 +171,19 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 
 	}
 		
+    void searchList(String value) {
+        ActivationRecord aRec = activate(getClass());//!
+        aRec.var("value", value).breakHere("begin moving forward");//!
+        while (iter.hasNext()) {
+            String v = iter.next();
+            aRec.var("v", v).breakHere("Is this what we want?");//!
+            if (v.equals(value)) {
+                aRec.breakHere("Yes!");//!
+                out.println("Found it!");
+                break;
+            }
+        }
+    }
 
 	void traverse(LinkedList<String> aList) //!void traverse(const list<string>& alist)
 	{
@@ -188,6 +196,7 @@ public class CS361DLAnimation extends LocalJavaAnimation {
 	        aRec.breakHere("Ready to step forward");//!
             String value = pos.next();
 	        aRec.var("value", value).breakHere("Stepped forward");//!
+            out.println(value);
 		}
 	    aRec.breakHere("Traversal completed");//!
 	}
