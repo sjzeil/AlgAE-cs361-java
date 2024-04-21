@@ -1,82 +1,61 @@
-package edu.odu.cs.cs361.animations;//!
+package edu.odu.cs.cs361.animations;
 
-import java.awt.Color;//!
+import java.awt.Color;
+import java.util.List;
 
+import edu.odu.cs.AlgAE.Common.Snapshot.Entity.Directions;
 import edu.odu.cs.AlgAE.Server.MemoryModel.ActivationRecord;//!
+import edu.odu.cs.AlgAE.Server.MemoryModel.Component;
+import edu.odu.cs.AlgAE.Server.MemoryModel.Connection;
+import edu.odu.cs.AlgAE.Server.Rendering.CanBeRendered;
+import edu.odu.cs.AlgAE.Server.Rendering.Renderer;
 import edu.odu.cs.AlgAE.Server.Utilities.ArrayList;
 import edu.odu.cs.AlgAE.Server.Utilities.DiscreteInteger;//!
 import edu.odu.cs.AlgAE.Server.Utilities.Index;//!
+import edu.odu.cs.AlgAE.Server.Utilities.SimpleReference;
+
 import static edu.odu.cs.AlgAE.Server.LocalServer.activate;//!
 
 
-public class Sorting {//!
+public class Sorting {
 
-//!#ifndef SORT_H
-//!#define SORT_H
 	
 /*
 * Several sorting routines.
 * Arrays are rearranged with smallest item first.
 */
 
-//!#include <vector>
-//!#include <functional>
-//!using namespace std;
 
+    public static <T> void swap(T[] array, int x, int y) {
+        T temp = array[x];
+        array[x] = array[y];
+        array[y] = temp;
+    }
 
-/*
-* Simple insertion sort.
-*/
-//!template <typename Comparable>xxx
-public void insertionSort (ArrayList<DiscreteInteger> v, int n)//!
-//!void insertionSort( vector<Comparable> & a )
-{
-	ActivationRecord aRec = activate(getClass());//!
-	aRec.refParam("a", v);//!
-	v.pushIndices();
-	aRec.breakHere("starting insertion sort");//!
-//!	
-	DiscreteInteger tmp = new DiscreteInteger(-97);//!
-//!	
-    DiscreteInteger p = new DiscreteInteger(-1);//!
-    aRec.var("p", p);//!
-    v.indexedBy(p, "p");//!
-//!		
-	for(int p0 = 1; p0< n; p0++)//!
-//!    for( int p = 1; p < a.size( ); ++p )
-	{
-		    p.set(p0);//!
-			aRec.breakHere("Where should we put a[p]?");//!
-		    tmp.set(v.get(p0));//!
-//!           Comparable tmp = std::move( a[ p ] );
-		    aRec.var("tmp", tmp);//!
-		    
-	        DiscreteInteger j = new DiscreteInteger(468);//!
-	        v.indexedBy(j, "j");//!
-//!           int j;
-	        aRec.var("j", j);//!
+    // From OpenDSA Data Structures and Algorithms, Chapter 13,
+    // https://opendsa-server.cs.vt.edu/OpenDSA/Books/Everything/html/InsertionSort.html
+    public static <T extends Comparable<T>> void inssort(T[] A) {
+        ActivationRecord aRec = activate(Sorting.class);//!
+        aRec.refParam("A", A);//!
+    	aRec.breakHere("starting insertion sort");//!
 
-			aRec.breakHere("scan down from j");//!   
-			j.set(p0);//!
-			int j0 = p0;//!
-	        for(j0 = p0; j0 > 0 && tmp.get() < v.get(j0-1).get(); j0--)//!
-//!           for( j = p; j > 0 && tmp < a[ j - 1 ]; --j )
-	        {
-	        	  j.set(j0);//!
-	        	  aRec.breakHere("Not there yet: shift a[j-1] up");//!
-	        	  v.get(j0).set(v.get(j0-1).get());//!
-//!                 a[ j ] = std::move( a[ j - 1 ] );
-	        	  aRec.breakHere("and continue scanning");//!
-	        }
-	        j.set(j0);//!
-		    aRec.breakHere("Put the tmp at a[j]");//!
-	        v.get(j0).set(tmp.get());//!
-//!           a[ j ] = std::move( tmp );
-	        v.removeIndex("j");//!
-	    }
-	    aRec.breakHere("done sorting");//!
-	    v.popIndices();//!
-	}
+        for (int i = 1; i < A.length; i++) { // Insert i'th record
+            int lastJ = i; T v = A[i];//!
+            Index ii = new Index(i, A);//!
+            aRec.var("i", ii).breakHere("Start moving element [i], " + v + " into position.");//!
+            aRec.pushScope();//!
+            for (int j = i; (j > 0) && (A[j].compareTo(A[j - 1]) < 0); j--) {
+                Index jj = new Index(j, A);//!
+                aRec.var("j", jj).breakHere("Swap elements " + j + " and " + (j-1));//!
+                swap(A, j, j - 1);
+                lastJ = j;//!
+            }
+            aRec.breakHere(v.toString() + " has settled in position " + lastJ);//!
+            aRec.popScope();//!
+        }
+        aRec.breakHere("Completed insertion sort.");//!
+    }
+
 
 
 /*
@@ -233,174 +212,322 @@ void shellSort(DiscreteInteger[] a, int n )//!
 
 
 
-/*
-* Internal method that makes recursive calls.
-* a is an array of DiscreteInteger
-* tmpA is an array to place the merged result.
-* left is the left-most index of the subarray.
-* right is the right-most index of the subarray.
-*/
-//!template <typename Comparable>
-void mergeSort (ArrayList<DiscreteInteger> a, ArrayList<DiscreteInteger> tmpArray, int left, int right)//!
-//!void mergeSort( vector<Comparable> & a,vector<Comparable> & tmpArray, int left, int right )
-{    
-	ActivationRecord aRec = activate(getClass());//!
-	DiscreteInteger left0 = new DiscreteInteger(left);
-	DiscreteInteger right0 = new DiscreteInteger(right);
-	aRec.refParam("a", a).refParam("tmpArray",tmpArray).param("left", left0).param("right", right0);//!
-	a.pushIndices();
-	a.indexedBy(left0, "left");//!
-	a.indexedBy(right0, "right");//!
-	aRec.breakHere("starting mergeSort");//!
-	if( left < right )
-    {
-//!
-		int center = ( left + right ) / 2;
-      
-		DiscreteInteger center0 = new DiscreteInteger(center);//!
-		a.indexedBy(center0, "center");//!
-		aRec.var("center", center);//!
-		aRec.breakHere("sort to left of center");//!
-        mergeSort( a, tmpArray, left, center );
-        aRec.breakHere("sort to right of center");//!
-        mergeSort( a, tmpArray, center + 1, right );
-        aRec.breakHere("merge sorted subarrays");//!
-        merge( a, tmpArray, left, center + 1, right );
+    // Based upon OpenDSA Data Structures and Algorithms, Chapter 13,
+    // https://opendsa-server.cs.vt.edu/OpenDSA/Books/Everything/html/MergesortImpl.html
+    // Changes by S Zeil: made it generic, divided into separate functions
+    private static <T extends Comparable<T>> void mergesort(T[] A, Object[] temp, int left, int right) {
+        ActivationRecord aRec = activate(Sorting.class);//!
+        aRec.param("A", "").param("temp", "").param("left", left).param("right", right);//!
+        aRec.clearRenderings();//!
+        for (int i = left; i <= right; ++i) aRec.highlight(A[i]); //!
+        aRec.breakHere("starting mergesort recursive call on range " + left + ".." + right);//!
+        if (left == right) {
+            return;
+        } // List has one record
+        int mid = (left + right) / 2; // Select midpoint
+        for (int i = left; i <= mid; ++i) aRec.highlight(A[i], Color.blue); //!
+        for (int i = mid+1; i <= right; ++i) aRec.highlight(A[i], Color.yellow); //!
+        aRec.var("mid", mid).breakHere("Computed midpoint. Now sort the left half.");//!
+        mergesort(A, temp, left, mid); // Mergesort first half
+        aRec.breakHere("Now sort the right half.");//!
+        mergesort(A, temp, mid + 1, right); // Mergesort second half
+        aRec.breakHere("Now merge the two halves.");//!
+        merge(A, temp, left, right, mid);
+        aRec.breakHere("Merged");//!
     }
-	a.popIndices();//!
-}
 
-/*
-* Mergesort algorithm (driver).
-*/
-//!template <typename Comparable>
-void mergeSort( ArrayList<DiscreteInteger> a, int length )//!
-//!void mergeSort( vector<Comparable> & a )
-{
-	ActivationRecord aRec = activate(getClass());//!
-	aRec.refParam("a", a);//!
-	aRec.breakHere("starting mergeSort");//!
-//!	
-	ArrayList<DiscreteInteger> tmpArray = new ArrayList<DiscreteInteger>();//!
-	for (int i = 0; i < a.size(); ++i) tmpArray.add(new DiscreteInteger(-99));//!
-	aRec.refVar("tmpArray",tmpArray);//!
-	aRec.breakHere("allocated temporary array");//!
-//!     vector<Comparable> tmpArray( a.size( ) );
-     mergeSort( a, tmpArray, 0, length-1 );
-}
-
-
-
-/*
- * Internal method that merges two sorted halves of a subarray.
- * a is an array of Comparable items.
- * tmpArray is an array to place the merged result.
- * leftPos is the left-most index of the subarray.
- * rightPos is the index of the start of the second half.
- * rightEnd is the right-most index of the subarray.
- */
-//!template <typename Comparable>
-void merge(ArrayList<DiscreteInteger> a,  ArrayList<DiscreteInteger> tmpArray, int leftPos0, int rightPos0, int rightEnd0){//!
-//!void merge( vector<Comparable> & a, vector<Comparable> & tmpArray,int leftPos, int rightPos, int rightEnd ){
-    DiscreteInteger leftPos = new DiscreteInteger(leftPos0);//!
-    DiscreteInteger rightPos = new DiscreteInteger(rightPos0);//!
-    DiscreteInteger rightEnd = new DiscreteInteger(rightEnd0);//!
-	ActivationRecord aRec = activate(getClass());//!
-	aRec.param("a", "").refParam("tmpArray", tmpArray).param("leftPos", leftPos).param("rightPos", rightPos).param("rightEnd", rightEnd);//!
-	aRec.breakHere("starting merge");//!
-	a.pushIndices();//!
-	tmpArray.pushIndices();//!
-	a.indexedBy(leftPos, "leftPos");//!
-	a.indexedBy(rightPos, "rightPos");//!
-	a.indexedBy(rightEnd, "rightEnd");//!
-	DiscreteInteger leftEnd = new DiscreteInteger(rightPos0 - 1);//!
-	a.indexedBy(rightEnd, "leftEnd");//!
-//!    int leftEnd = rightPos - 1;
-    DiscreteInteger tmpPos = new DiscreteInteger(leftPos0);//!
-    tmpArray.indexedBy(tmpPos, "tmpPos");//!
-//!    int tmpPos = leftPos;
-    int numElements = rightEnd.get() - leftPos.get() + 1;//!
-//!    int numElements = rightEnd - leftPos + 1;
-//!    
-	aRec.var("leftEnd", leftEnd).var("tmpPos", tmpPos).var("numElements", numElements);//!
-
-	for (int i = leftPos.get(); i < rightPos.get(); ++i)//!
-		aRec.highlight(a.get(i), Color.yellow);//!
-	for (int i = rightPos.get(); i < Math.min(rightEnd.get()+1, a.size()); ++i)//!
-		aRec.highlight(a.get(i), Color.blue);//!
-	aRec.breakHere("leftPos and rightPos point to start of sublists");//!
-	
-    // Main loop
-	while( leftPos.get() <= leftEnd.get() && rightPos.get() <= rightEnd.get() )//!
-//!    while( leftPos <= leftEnd && rightPos <= rightEnd )
-	{
-		aRec.breakHere("choose smaller of a[leftPos] and a[leftPos]");//!
-        if(a.get(leftPos).get() <= a.get( rightPos).get())//!
-//!        if( a[ leftPos ] <= a[ rightPos ] )
-        {
-        	aRec.breakHere("add a[leftPos++] to tmpArray");//!
-        	tmpArray.get(tmpPos).set(a.get(leftPos));tmpPos.incr();leftPos.incr();//!
-        	aRec.highlight(tmpArray.get(tmpPos.get()-1));//!
-//!            tmpArray[ tmpPos++ ] = std::move( a[ leftPos++ ] );
-        	aRec.highlight(a.get(leftPos.get()-1), Color.gray);//!
+    public static <T extends Comparable<T>> void merge(T[] A, Object[] temp, int left, int right, int mid) {
+        ActivationRecord aRec = activate(Sorting.class);//!
+        aRec.refParam("A", A).refParam("temp", temp).param("left", left).param("right", right).param("mid", mid);//!
+        for (int i = left; i <= mid; ++i) aRec.highlight(A[i], Color.blue); //!
+        for (int i = mid+1; i <= right; ++i) aRec.highlight(A[i], Color.yellow); //!
+        aRec.breakHere("Starting merge");//!
+        // Do the merge operation into temp
+        int i1 = left;
+        int i2 = mid + 1;
+        int curr = left;
+        Index ii1 = new Index(i1, A);//!
+        Index ii2 = new Index(i2,A);//!
+        Index iCurr = new Index(curr, temp);//!
+        aRec.var("i1", ii1).var("i2", ii2).var("curr", iCurr).breakHere("Ready to start comparing");//!
+        for (; i1 <= mid && i2 <= right; curr++) {
+            aRec.breakHere("Compare elements " + i1 + " and " + i2);//!
+            ii1.set(i1); ii2.set(i2); iCurr.set(curr);//!
+            if (A[i1].compareTo(A[i2]) <= 0) { // Get smaller value
+                aRec.breakHere("A[i1] is smaller. Copy it to temp;");//!
+                temp[curr] = A[i1++];
+            } else {
+                aRec.breakHere("A[i2] is smaller. Copy it to temp;");//!
+                temp[curr] = A[i2++];
+            }
+            aRec.breakHere("Smaller value has been copied to temp[curr]");//!
         }
-        else
-        {
-        	aRec.breakHere("add a[rightPos++] to tmpArrayfdfd");//!
-        	tmpArray.get(tmpPos).set(a.get(rightPos)); tmpPos.incr(); rightPos.incr();//!
-        	aRec.highlight(tmpArray.get(tmpPos.get()-1));//!
-//!            tmpArray[ tmpPos++ ] = std::move( a[ rightPos++ ] );
-        	aRec.highlight(a.get(rightPos.get()-1), Color.gray);//!
+        // Exhausted one sublist or the other. Copy the remaining elements from the
+        // non-emptied sublist.
+        aRec.breakHere("Copy any remaining elements from left half.");//!
+        System.arraycopy(A, i1, temp, curr, mid - i1 + 1);
+        aRec.breakHere("Copy any remaining elements from right half.");//!
+        System.arraycopy(A, i2, temp, curr, right - i2 + 1);
+
+        // Copy merged data from temp back to A
+        aRec.breakHere("Copy merged data from temp back to A.");//!
+        System.arraycopy(temp, left, A, left, right - left + 1);
+    }
+
+    public static <T extends Comparable<T>> void mergesort(T[] A) {
+        ActivationRecord aRec = activate(Sorting.class);//!
+        aRec.refParam("A", A);//!
+        aRec.breakHere("starting mergesort");//!
+        Object[] temp = new Object[A.length];
+        for(int i = 0; i < A.length; ++i) temp[i] = new DiscreteInteger(0);//!
+        aRec.refVar("temp", temp).breakHere("Allocated temporary array");//!
+        mergesort(A, temp, 0, A.length - 1);
+        aRec.breakHere("Completed mergesort");//!
+    }
+
+
+    private static class SimpleListNode 
+    implements CanBeRendered<SimpleListNode>, Renderer<SimpleListNode>//!
+    {
+        public Object data;
+        public SimpleListNode next;
+
+        public SimpleListNode(Object data) {
+            this.data = data;
+            this.next = null;
         }
-        aRec.breakHere("repeat if both sublists are non-empty");//!
-	}//!
-	
-	aRec.breakHere("one or both sublists is empty");//!
 
-    
-//!	while( leftPos <= leftEnd )    // Copy rest of first half
-	while( leftPos.get() <= leftEnd.get() )    // Copy rest of first half//!
-    {
-		aRec.breakHere("copy remaining left element");//!
-		tmpArray.get(tmpPos).set(a.get( leftPos)); tmpPos.incr();leftPos.incr();//!
-		aRec.highlight(tmpArray.get(tmpPos.get()-1));//!
-//!        tmpArray[ tmpPos++ ] = std::move( a[ leftPos++ ] );
-		aRec.highlight(a.get(leftPos.get()-1), Color.gray);//!
-    }
-    
-	aRec.breakHere("all elements have been copied from the left sublist");//!
-    while( rightPos.get() <= rightEnd.get() )  // Copy rest of right half//!
-//!    while( rightPos <= rightEnd )  // Copy rest of right half
-    {
-    	aRec.breakHere("copy remaining right element");//!
-		tmpArray.get(tmpPos).set(a.get(rightPos)); tmpPos.incr();rightPos.incr();//!
-    	aRec.highlight(tmpArray.get(tmpPos.get()-1));//!
-//!        tmpArray[ tmpPos++ ] = std::move( a[ rightPos++ ] );
-    	aRec.highlight(a.get(rightPos.get()-1), Color.gray);//!
-    }
-        
-    aRec.breakHere("all elements have been copied from the right sublist");//!
-//!    
-    // Copy tmpArray back
-    aRec.pushScope();//!
-    DiscreteInteger i = new DiscreteInteger();//!
-    a.indexedBy(i, "i");//!
-    for( int i0 = 0; i0 < numElements; ++i0, rightEnd.decr() )//!
-//!    for( int i = 0; i < numElements; ++i, --rightEnd )
-    {
-    	i.set(i0);//!
-    	aRec.var("i", i);//!
-		aRec.breakHere("copy temp element back to original vector");//!
-    	a.get(rightEnd).set(tmpArray.get(rightEnd));//!
-//!        a[ rightEnd ] = std::move( tmpArray[ rightEnd ] );
-        
-    }
-    aRec.popScope();//!
-	aRec.breakHere("finished merge");//!
-	a.popIndices();//!
-	tmpArray.popIndices();//!
-}
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
 
+        @Override
+        public Color getColor(SimpleListNode arg0) {
+            return null;
+        }
+
+        @Override
+        public List<Component> getComponents(SimpleListNode node) {
+            List<Component> components = new ArrayList<>();
+            return components;
+        }
+
+        @Override
+        public List<Connection> getConnections(SimpleListNode arg0) {
+            List<Connection> connections = new ArrayList<>();
+            connections.add(new Connection(next, 0, 180));
+            return connections;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Vertical;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return null;
+        }
+
+        @Override
+        public String getValue(SimpleListNode node) {
+            return node.data.toString();
+        }
+
+        @Override
+        public Renderer<SimpleListNode> getRenderer() {
+            return this;
+        }
+    }
+
+    private static class SimpleList 
+    implements Renderer<SimpleList>, CanBeRendered<SimpleList>//!
+    {
+        private SimpleListNode first;
+        private SimpleListNode last;
+        private SimpleReference firstRef;//
+        private SimpleReference lastRef;//
+        private int theSize;
+
+        public SimpleList() {
+            first = last = null;
+            theSize = 0;
+            firstRef = new SimpleReference(first);//!
+            lastRef = new SimpleReference(last);//!
+        }
+
+        public boolean isEmpty() {return theSize == 0;}
+
+        public void addToEnd(SimpleListNode nd) {
+            if (first == null) {
+                first = nd;
+            }
+            if (last != null) {
+                last.next = nd;
+            }
+            last = nd;
+            nd.next = null;
+            ++theSize;
+        }
+
+        public SimpleListNode removeFront() {
+            SimpleListNode front = first;
+            first = front.next;
+            if (first == null) {
+                last = null;
+            }
+            --theSize;
+            front.next = null;
+            return front;
+        }
+
+        public void swap(SimpleList other) {
+            SimpleListNode temp = first;
+            first = other.first;
+            other.first = temp;
+            temp = last;
+            last = other.last;
+            other.last = temp;
+            int tmp = theSize;
+            theSize = other.theSize;
+            other.theSize = tmp;
+        }
+
+        @Override
+        public Renderer<SimpleList> getRenderer() {
+            return this;
+        }
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return true;
+        }
+
+        @Override
+        public Color getColor(SimpleList arg0) {
+            return null;
+        }
+
+        @Override
+        public List<Component> getComponents(SimpleList arg0) {
+            List<Component> components = new ArrayList<>();
+            firstRef.set(first);
+            components.add(new Component(firstRef, "first"));
+            lastRef.set(last);
+            components.add(new Component(lastRef, "last"));
+            return components;
+        }
+
+        @Override
+        public List<Connection> getConnections(SimpleList arg0) {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Vertical;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return null;
+        }
+
+        @Override
+        public String getValue(SimpleList arg0) {
+            return "";
+        }
+    }
+
+    // Iterative Merge Sort
+    public static <T extends Comparable<T>> void mergesort(List<T> list) {
+        ActivationRecord aRec = activate(Sorting.class);//!
+        aRec.refParam("list", list).breakHere("Starting iterative mergesort");//!
+
+        ArrayList<SimpleList> temps = setUpTempLists(list.size());
+
+        SimpleList inHand = new SimpleList();
+        aRec.refVar("temps", temps).var("inHand", inHand).breakHere("Temporary lists have been set up");//!
+
+        mergeDataFromList(list, temps, inHand);
+        aRec.breakHere("All data has been processed from the input list");//!
+
+        inHand = mergeAllTempLists(temps);
+        aRec.breakHere("All temporary lists have been merged");//!
+        copyToList(list, inHand);
+        aRec.breakHere("Completed mergesort");//!
+    }
+
+    private static ArrayList<SimpleList> setUpTempLists(int inputSize) {
+        ArrayList<SimpleList> results = new ArrayList<>();
+        // Compute ceil(log_2(inputSize))
+        int size = 1;
+        while (size <= inputSize) {
+            size *= 2;
+            results.add(new SimpleList());
+        }
+        results.setDirection(Directions.Vertical);//!
+        return results;
+    }
+
+
+
+    private static <T extends Comparable<T>> void mergeDataFromList(List<T> list, ArrayList<SimpleList> temps, SimpleList inHand) {
+        for (T data: list) {
+            inHand.addToEnd(new SimpleListNode(data));
+            int k = 0;
+            while (!temps.get(k).isEmpty()) {
+                inHand = merge(temps.get(k), inHand, (T)null);
+                ++k;
+            }
+            SimpleList temp = temps.get(k);
+            temps.set(k, inHand);
+            inHand = temp;
+        }
+    }
+
+    private static <T extends Comparable<T>> SimpleList mergeAllTempLists(ArrayList<SimpleList> temps) {
+        SimpleList inHand = temps.get(0);
+        for (int i = 1; i < temps.size(); ++i) {
+            inHand = merge(inHand, temps.get(i), (T)null);
+        }
+        return inHand;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Comparable<T>> void copyToList(List<T> list, SimpleList inHand) {
+        list.clear();
+        for (SimpleListNode nd = inHand.first; nd != null; nd = nd.next) {
+            list.add((T)nd.data);
+        }
+    }
+
+
+
+
+    private static <T extends Comparable<T>>
+    SimpleList merge(SimpleList list1, SimpleList list2, T t) {
+        SimpleList result = new SimpleList();
+        while ((!list1.isEmpty()) && (!list2.isEmpty())) {
+            @SuppressWarnings("unchecked")
+            T t1 = (T)list1.first.data;
+            @SuppressWarnings("unchecked")
+            T t2 = (T)list2.first.data;
+            if (t1.compareTo(t2) <= 0) {
+                result.addToEnd(list1.removeFront());
+            } else {
+                result.addToEnd(list2.removeFront());
+            }
+        }
+        while (!list1.isEmpty()) {
+            result.addToEnd(list1.removeFront());
+        }
+        while (!list2.isEmpty()) {
+            result.addToEnd(list2.removeFront());
+        }
+        return result;
+    }
 
 
 /*

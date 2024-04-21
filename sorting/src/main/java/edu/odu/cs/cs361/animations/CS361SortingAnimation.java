@@ -1,10 +1,16 @@
 package edu.odu.cs.cs361.animations;
 
 
+import java.util.Arrays;
+import java.util.List;
+
 import edu.odu.cs.AlgAE.Animations.LocalJavaAnimation;
+import edu.odu.cs.AlgAE.Common.Snapshot.Entity.Directions;
 import edu.odu.cs.AlgAE.Server.MenuFunction;
+import edu.odu.cs.AlgAE.Server.Rendering.DefaultRenderer;
 import edu.odu.cs.AlgAE.Server.Utilities.ArrayList;
 import edu.odu.cs.AlgAE.Server.Utilities.DiscreteInteger;
+import edu.odu.cs.AlgAE.Server.Utilities.SimpleReference;
 
 
 public class CS361SortingAnimation extends LocalJavaAnimation {
@@ -23,20 +29,21 @@ public class CS361SortingAnimation extends LocalJavaAnimation {
 	}
 
 	
-	private ArrayList<DiscreteInteger> array = new ArrayList<>();
-
+	//private ArrayList<DiscreteInteger> array = new ArrayList<>();
+    private DiscreteInteger[] array = new DiscreteInteger[0];
+    private SimpleReference arrayRef = new SimpleReference(array);
 	
 	
 	@Override
 	public void buildMenu() {
-		
 		
 		registerStartingAction(new MenuFunction() {
 			
 			@Override
 			public void selected() {
 				generateRandomArray(12);
-				globalVar("v", array);
+				globalVar("A", arrayRef);
+                //DefaultRenderer.setDefaultArrayDirection(Directions.Vertical);
 			}
 		});
 		
@@ -57,7 +64,7 @@ public class CS361SortingAnimation extends LocalJavaAnimation {
 		register ("Insertion Sort", new MenuFunction() {
 			@Override
 			public void selected() {
-				new Sorting().insertionSort (array, array.size());
+				Sorting.inssort (array);
 			}
 		});
 /*
@@ -69,20 +76,31 @@ public class CS361SortingAnimation extends LocalJavaAnimation {
 		});
 */
 
-		register ("Merge Sort", new MenuFunction() {
+
+		register ("Merge Sort (recursive)", new MenuFunction() {
 			@Override
 			public void selected() {
-				new Sorting().mergeSort (array, array.size());
+				Sorting.mergesort (array);
 			}
 		});
 
-		register ("Quick Sort", new MenuFunction() {
+		register ("Merge Sort (iterative)", new MenuFunction() {
+			@Override
+			public void selected() {
+                List<DiscreteInteger> list = new ArrayList<>(Arrays.asList(array));
+				Sorting.mergesort (list);
+                int i = 0;
+                for (DiscreteInteger di: list) array[i] = di;
+			}
+		});
+
+        /*		register ("Quick Sort", new MenuFunction() {
 			@Override
 			public void selected() {
 				new Sorting().quicksort (array, array.size());
 			}
 		});
-
+*/
 	}
 	
 	public void randomArrayGenerated()
@@ -94,11 +112,11 @@ public class CS361SortingAnimation extends LocalJavaAnimation {
 
 	public void generateRandomArray(int n)
 	{
-		array.clear();
+		array = new DiscreteInteger[n];
 		for (int i = 0; i < n; ++i) {
-			array.add(new DiscreteInteger((int)((double)(2*n) * Math.random())));
+			array[i] = new DiscreteInteger((int)((double)(2*n) * Math.random()));
 		}
-		
+		arrayRef.set(array);
 	}
 
 	
@@ -111,15 +129,12 @@ public class CS361SortingAnimation extends LocalJavaAnimation {
 
 	public void generateReverseArray(int n)
 	{
-		array.clear();
-		for (int i = 0; i < n; ++i) {
-			array.add(null);
-		}
-		array.set(n-1, new DiscreteInteger ((int)(3.0 * Math.random())));  
+        array = new DiscreteInteger[n];
+		array[n-1] = new DiscreteInteger ((int)(3.0 * Math.random()));  
 		for (int i = n-2; i >= 0; --i) {
-			array.set(i, new DiscreteInteger(array.get(i+1).get() + (int)(3.0 * Math.random())));
+			array[i] = new DiscreteInteger(array[i+1].get() + (int)(3.0 * Math.random()));
 		}
-		
+		arrayRef.set(array);
 	}
 
 	
