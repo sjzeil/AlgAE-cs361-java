@@ -11,6 +11,7 @@ pluginManagement {
 include 'arrayList'
 include 'arrayOps'
 include 'doublyLinkedLists'
+include 'sorting'
 /*
 include 'avl'
 include 'bst'
@@ -25,7 +26,6 @@ include 'queuesArr'
 include 'queuesLL'
 include 'rpnCalculator'
 include 'singlyLinkedLists'
-include 'sorting'
 include 'stacks'
 include 'trees'
 */

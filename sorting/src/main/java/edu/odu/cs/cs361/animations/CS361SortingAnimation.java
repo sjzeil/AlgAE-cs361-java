@@ -18,8 +18,8 @@ public class CS361SortingAnimation extends LocalJavaAnimation {
 		return "Demonstration of Sorting Algorithms,\n" +
 				"prepared for CS 361, Data Structures\n" +
 				"and Algorithms, Old Dominion University"
-				+ "ty\n" +
-				"Summer 2010";
+				+ "\n" +
+				"Summer 2024";
 	}
 
 	
