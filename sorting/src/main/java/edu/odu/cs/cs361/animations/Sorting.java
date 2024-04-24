@@ -286,186 +286,33 @@ void shellSort(DiscreteInteger[] a, int n )//!
     }
 
 
-    private static class SimpleListNode 
-    implements CanBeRendered<SimpleListNode>, Renderer<SimpleListNode>//!
-    {
-        public Object data;
-        public SimpleListNode next;
-
-        public SimpleListNode(Object data) {
-            this.data = data;
-            this.next = null;
-        }
-
-        @Override
-        public Boolean getClosedOnConnections() {
-            return false;
-        }
-
-        @Override
-        public Color getColor(SimpleListNode arg0) {
-            return null;
-        }
-
-        @Override
-        public List<Component> getComponents(SimpleListNode node) {
-            List<Component> components = new ArrayList<>();
-            return components;
-        }
-
-        @Override
-        public List<Connection> getConnections(SimpleListNode arg0) {
-            List<Connection> connections = new ArrayList<>();
-            connections.add(new Connection(next, 0, 180));
-            return connections;
-        }
-
-        @Override
-        public Directions getDirection() {
-            return Directions.Vertical;
-        }
-
-        @Override
-        public Double getSpacing() {
-            return null;
-        }
-
-        @Override
-        public String getValue(SimpleListNode node) {
-            return node.data.toString();
-        }
-
-        @Override
-        public Renderer<SimpleListNode> getRenderer() {
-            return this;
-        }
-    }
-
-    private static class SimpleList 
-    implements Renderer<SimpleList>, CanBeRendered<SimpleList>//!
-    {
-        private SimpleListNode first;
-        private SimpleListNode last;
-        private SimpleReference firstRef;//
-        private SimpleReference lastRef;//
-        private int theSize;
-
-        public SimpleList() {
-            first = last = null;
-            theSize = 0;
-            firstRef = new SimpleReference(first);//!
-            lastRef = new SimpleReference(last);//!
-        }
-
-        public boolean isEmpty() {return theSize == 0;}
-
-        public void addToEnd(SimpleListNode nd) {
-            if (first == null) {
-                first = nd;
-            }
-            if (last != null) {
-                last.next = nd;
-            }
-            last = nd;
-            nd.next = null;
-            ++theSize;
-        }
-
-        public SimpleListNode removeFront() {
-            SimpleListNode front = first;
-            first = front.next;
-            if (first == null) {
-                last = null;
-            }
-            --theSize;
-            front.next = null;
-            return front;
-        }
-
-        public void swap(SimpleList other) {
-            SimpleListNode temp = first;
-            first = other.first;
-            other.first = temp;
-            temp = last;
-            last = other.last;
-            other.last = temp;
-            int tmp = theSize;
-            theSize = other.theSize;
-            other.theSize = tmp;
-        }
-
-        @Override
-        public Renderer<SimpleList> getRenderer() {
-            return this;
-        }
-
-        @Override
-        public Boolean getClosedOnConnections() {
-            return true;
-        }
-
-        @Override
-        public Color getColor(SimpleList arg0) {
-            return null;
-        }
-
-        @Override
-        public List<Component> getComponents(SimpleList arg0) {
-            List<Component> components = new ArrayList<>();
-            firstRef.set(first);
-            components.add(new Component(firstRef, "first"));
-            lastRef.set(last);
-            components.add(new Component(lastRef, "last"));
-            return components;
-        }
-
-        @Override
-        public List<Connection> getConnections(SimpleList arg0) {
-            return new ArrayList<>();
-        }
-
-        @Override
-        public Directions getDirection() {
-            return Directions.Vertical;
-        }
-
-        @Override
-        public Double getSpacing() {
-            return null;
-        }
-
-        @Override
-        public String getValue(SimpleList arg0) {
-            return "";
-        }
-    }
 
     // Iterative Merge Sort
-    public static <T extends Comparable<T>> void mergesort(List<T> list) {
+    public static <T extends Comparable<T>> void mergesort2(T[] array) {
         ActivationRecord aRec = activate(Sorting.class);//!
-        aRec.refParam("list", list).breakHere("Starting iterative mergesort");//!
+        aRec.refParam("list", array).breakHere("Starting iterative mergesort");//!
 
-        ArrayList<SimpleList> temps = setUpTempLists(list.size());
+        ArrayList<SimpleQueue<T>> temps = setUpTempLists(array.length);
 
-        SimpleList inHand = new SimpleList();
-        aRec.refVar("temps", temps).var("inHand", inHand).breakHere("Temporary lists have been set up");//!
+        aRec.refVar("temps", temps).breakHere("Temporary lists have been set up");//!
 
-        mergeDataFromList(list, temps, inHand);
+        mergeDataFromList(array, temps);
         aRec.breakHere("All data has been processed from the input list");//!
 
-        inHand = mergeAllTempLists(temps);
-        aRec.breakHere("All temporary lists have been merged");//!
-        copyToList(list, inHand);
+        SimpleQueue<T> sorted = mergeAllTempLists(temps);
+        aRec.refVar("sorted",sorted).breakHere("All temporary lists have been merged");//!
+        copyToArray(array, sorted);
         aRec.breakHere("Completed mergesort");//!
     }
 
-    private static ArrayList<SimpleList> setUpTempLists(int inputSize) {
-        ArrayList<SimpleList> results = new ArrayList<>();
+    private static <T extends Comparable<T>> 
+    ArrayList<SimpleQueue<T>> setUpTempLists(int inputSize) {
+        ArrayList<SimpleQueue<T>> results = new ArrayList<>();
         // Compute ceil(log_2(inputSize))
         int size = 1;
         while (size <= inputSize) {
             size *= 2;
-            results.add(new SimpleList());
+            results.add(new SimpleQueue<T>());
         }
         results.setDirection(Directions.Vertical);//!
         return results;
@@ -473,33 +320,49 @@ void shellSort(DiscreteInteger[] a, int n )//!
 
 
 
-    private static <T extends Comparable<T>> void mergeDataFromList(List<T> list, ArrayList<SimpleList> temps, SimpleList inHand) {
-        for (T data: list) {
-            inHand.addToEnd(new SimpleListNode(data));
+    private static <T extends Comparable<T>>
+    void mergeDataFromList(T[] array, ArrayList<SimpleQueue<T>> temps) {
+        ActivationRecord aRec = activate(Sorting.class);//!
+        aRec.refParam("array", array).refParam("temps", temps).breakHere("starting mergeDataFromList");//!
+        for (T data: array) {
+            aRec.pushScope();//!
+            SimpleQueue<T> inHand = new SimpleQueue<T>();
+            aRec.var("data", data).var("inHand",inHand).breakHere("Add next data item from array to inHand");//!
+            inHand.add(data);
             int k = 0;
+            aRec.var("k", k).breakHere("Begin merging inHand with the temps lists");//!
             while (!temps.get(k).isEmpty()) {
-                inHand = merge(temps.get(k), inHand, (T)null);
+                inHand.swap(merge(temps.get(k), inHand));
+                aRec.refParam("inHand", inHand).breakHere("Merged temps[" + k + "] into inHand");//!
                 ++k;
             }
-            SimpleList temp = temps.get(k);
+            aRec.breakHere("Swap empty temps[" + k + "] with inHand");//!
             temps.set(k, inHand);
-            inHand = temp;
+            aRec.popScope();//!
+            aRec.highlight(data, Color.gray);//!
         }
     }
 
-    private static <T extends Comparable<T>> SimpleList mergeAllTempLists(ArrayList<SimpleList> temps) {
-        SimpleList inHand = temps.get(0);
+    private static <T extends Comparable<T>> 
+    SimpleQueue<T> mergeAllTempLists(ArrayList<SimpleQueue<T>> temps) {
+        ActivationRecord aRec = activate(Sorting.class);//!
+        SimpleQueue<T> result = temps.get(0);
+        aRec.refVar("result", result).breakHere("Merge each temp list into result");//!
         for (int i = 1; i < temps.size(); ++i) {
-            inHand = merge(inHand, temps.get(i), (T)null);
+            result.swap(merge(result, temps.get(i)));
+            aRec.var("i", i).breakHere("Merged temps[" + i + "] into result");//!
         }
-        return inHand;
+        aRec.breakHere("done with mergeAllTempLists");//!
+        return result;
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Comparable<T>> void copyToList(List<T> list, SimpleList inHand) {
-        list.clear();
-        for (SimpleListNode nd = inHand.first; nd != null; nd = nd.next) {
-            list.add((T)nd.data);
+    private static <T extends Comparable<T>>
+    void copyToArray(T[] array, SimpleQueue<T> inHand) {
+        int i = 0;
+        for (T data: inHand) {
+            array[i] = data;
+            ++i;
         }
     }
 
@@ -507,25 +370,34 @@ void shellSort(DiscreteInteger[] a, int n )//!
 
 
     private static <T extends Comparable<T>>
-    SimpleList merge(SimpleList list1, SimpleList list2, T t) {
-        SimpleList result = new SimpleList();
+    SimpleQueue<T> merge(SimpleQueue<T> list1, SimpleQueue<T> list2) {
+        ActivationRecord aRec = activate(Sorting.class);//!
+        aRec.refParam("list1", list1).refParam("list2", list2);//!
+        SimpleQueue<T> result = new SimpleQueue<T>();
+        aRec.var("result",result).breakHere("merge the lists into result");//!
         while ((!list1.isEmpty()) && (!list2.isEmpty())) {
             @SuppressWarnings("unchecked")
-            T t1 = (T)list1.first.data;
+            T t1 = list1.peek();
             @SuppressWarnings("unchecked")
-            T t2 = (T)list2.first.data;
+            T t2 = list2.peek();
+            aRec.var("t1",  t1).var("t2", t2).breakHere("Compare t1 and t2");//!
             if (t1.compareTo(t2) <= 0) {
-                result.addToEnd(list1.removeFront());
+                result.add(list1.remove());
+                aRec.breakHere("t1 was smaller. Added to result");//!
             } else {
-                result.addToEnd(list2.removeFront());
+                result.add(list2.remove());
+                aRec.breakHere("t2 was smaller. Added to result");//!
             }
         }
+        aRec.breakHere("Copy any data remaining in list1");//!
         while (!list1.isEmpty()) {
-            result.addToEnd(list1.removeFront());
+            result.add(list1.remove());
         }
+        aRec.breakHere("Copy any data remaining in list2");//!
         while (!list2.isEmpty()) {
-            result.addToEnd(list2.removeFront());
+            result.add(list2.remove());
         }
+        aRec.breakHere("done with merge");//!
         return result;
     }
 

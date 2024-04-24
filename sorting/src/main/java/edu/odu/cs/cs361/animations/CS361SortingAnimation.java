@@ -1,14 +1,9 @@
 package edu.odu.cs.cs361.animations;
 
 
-import java.util.Arrays;
-import java.util.List;
 
 import edu.odu.cs.AlgAE.Animations.LocalJavaAnimation;
-import edu.odu.cs.AlgAE.Common.Snapshot.Entity.Directions;
 import edu.odu.cs.AlgAE.Server.MenuFunction;
-import edu.odu.cs.AlgAE.Server.Rendering.DefaultRenderer;
-import edu.odu.cs.AlgAE.Server.Utilities.ArrayList;
 import edu.odu.cs.AlgAE.Server.Utilities.DiscreteInteger;
 import edu.odu.cs.AlgAE.Server.Utilities.SimpleReference;
 
@@ -87,10 +82,10 @@ public class CS361SortingAnimation extends LocalJavaAnimation {
 		register ("Merge Sort (iterative)", new MenuFunction() {
 			@Override
 			public void selected() {
-                List<DiscreteInteger> list = new ArrayList<>(Arrays.asList(array));
-				Sorting.mergesort (list);
-                int i = 0;
-                for (DiscreteInteger di: list) array[i] = di;
+                //List<DiscreteInteger> list = new ArrayList<>(Arrays.asList(array));
+				Sorting.mergesort2 (array);
+                //int i = 0;
+                //for (DiscreteInteger di: list) array[i] = di;
 			}
 		});
 
