@@ -2,6 +2,7 @@ package edu.odu.cs.cs361.animations;
 
 import java.awt.Color;
 import java.util.List;
+import java.util.Stack;
 
 import edu.odu.cs.AlgAE.Common.Snapshot.Entity.Directions;
 import edu.odu.cs.AlgAE.Server.MemoryModel.ActivationRecord;//!
@@ -401,294 +402,182 @@ void shellSort(DiscreteInteger[] a, int n )//!
         return result;
     }
 
+    private static <T extends Comparable<T>> int findpivot(T[] A, int i, int j) {
+        return (i + j) / 2;
+    }
 
-/*
-* Return median of left, center, and right.
-* Order these and hide the pivot.
-*/
-//!template <typename Comparable>
-final DiscreteInteger median3( ArrayList<DiscreteInteger> a, DiscreteInteger left, DiscreteInteger right )//!
-//!const Comparable & median3( vector<Comparable> & a, int left, int right )
-{
-	ActivationRecord aRec = activate(getClass());//!
-	aRec.param("a","").param("left", left).param("right",right);//!
-
-	DiscreteInteger center = new DiscreteInteger( (left.get() + right.get() ) / 2);
-//!    int center = ( left + right ) / 2;
-	aRec.var("center", center);//!
-	a.pushIndices();//!
-	a.indexedBy(left, "left");//!
-	a.indexedBy(right, "right");//!
-	a.indexedBy(center, "center");//!
- 
-	if( a.get( center ).get() < a.get( left ).get() ) //!
-//!    if( a[ center ] < a[ left ] )
-	{
-		aRec.breakHere("swap  a[ left ] and  a[ center ]");//!
-//!        std::swap( a[ left ], a[ center ] );
-		a.get( left ).swap( a.get(center));//!
-		aRec.breakHere("done with swapping left and center");//!
-		
-	}
-	if( a.get( right ).get() < a.get( left ).get() )//!
-//!    if( a[ right ] < a[ left ] )
-	{
-		aRec.breakHere("swap  a[ right ] and  a[ left ]");//!
-//!        std::swap( a[ left ], a[ right ] );
-		a.get( left ).swap( a.get(right) );//!
-		aRec.breakHere("done with swapping right and left");//!
-	}
-	if( a.get( right ).get() < a.get( center ).get() )//!
-//!    if( a[ right ] < a[ center ] )
-	{
-		aRec.breakHere("swap  a[ right ] and  a[ center ]");//!
-//!        std::swap( a[ right ], a[ center ] );
-		a.get( right ).swap(a.get( center ));//!
-		aRec.breakHere("done with swapping right and center");//!
-	}
-
- // Place pivot at position right - 1
-	aRec.breakHere("Place pivot at position right - 1");//!
-	aRec.breakHere("swap  a[ center ] and  a[ right - 1 ]");//!
-//!    std::swap( a[ center ], a[ right - 1 ] );
-	a.get( center ).swap( a.get( right.get() - 1 ));//!
-	aRec.breakHere("done with swapping center and right - 1");//!
- 
-    return a.get( right.get() - 1 );//!
-//!    return a[ right - 1 ];
-}
-
-
-
-
-
-/*
-* Internal quicksort method that makes recursive calls.
-* Uses median-of-three partitioning and a cutoff of 10.
-* a is an array of DiscreteInteger
-* left is the left-most index of the subarray.
-* right is the right-most index of the subarray.
-*/
-//!template <typename Comparable>
-void quicksort(ArrayList<DiscreteInteger> a, int left0, int right0) {//!
-//!void quicksort( vector<Comparable> & a, int left, int right ) {
-	ActivationRecord aRec = activate(getClass());//!
-	DiscreteInteger left = new DiscreteInteger(left0);//!
-	DiscreteInteger right = new DiscreteInteger(right0);//!
-	a.pushIndices();//!
-	a.indexedBy(left, "left");//!
-	a.indexedBy(right, "right");//!
-	aRec.refParam("a", a).param("left", left).param("right",right);//!
-	for (int i = left0; i <= right0; ++i)
-		aRec.highlight(a.get(i), Color.blue.brighter().brighter());
-	
-	if( left.get() + 4 <= right.get() )//!
-//!	if( left + 4 <= right )
-    {
-		aRec.breakHere("Choose the pivot.");//!
-		DiscreteInteger pivot = median3( a, left, right );//!
-//!        const Comparable & pivot = median3( a, left, right );
-		aRec.var("pivot", pivot);//!
-        // Begin partitioning
-		aRec.breakHere("begin partitioning");//!
-        DiscreteInteger i = new DiscreteInteger(left.get());//!
-        DiscreteInteger j = new DiscreteInteger(right.get() - 1);//!
-        a.indexedBy(i, "i");//!
-        a.indexedBy(j, "j");//!
-//!        int i = left, j = right - 1;
-        aRec.var("i", i).var("j", j);//!
-        aRec.breakHere("look for elements to swap");//!
-        for( ; ; )
-        {
-        	i.incr();//!
-        	while( a.get(i).get() < pivot.get() ) {i.incr();//! 
-        		aRec.breakHere("scan up from the left");//!
-//!            while( a[ ++i ] < pivot ) { }
-        	}//!
-        	j.decr();//!
-            while( pivot.get() < a.get(j).get() ) {j.decr();//!
-        	aRec.breakHere("scan down from the right");//!
-//!            while( pivot < a[ --j ] ) { }
-            }//!
-            aRec.breakHere("Either we are ready to swap or we are done pivoting");//!
-            if( i.get() < j.get() )//!
-//!            if( i < j )
-            {
-            	aRec.breakHere("Swap the out-of-position elements");//!
-//!                std::swap( a[ i ], a[ j ] );
-            	a.get(i).swap(a.get(j));//!
+    public static <T extends Comparable<T>>
+    int partition(T[] A, int left, int right, T pivot) {
+        ActivationRecord aRec = activate(Sorting.class);//!
+        Index iLeft = new Index(left, A);//!
+        Index iRight = new Index(right, A);//!
+        aRec.refParam("A", A).param("left", left).param("right", right).param("pivot", pivot);//!
+        aRec.var("left", iLeft).var("right", iRight);//!
+        aRec.breakHere("Starting partition");//!
+        while (left <= right) { // Move bounds inward until they meet
+            aRec.breakHere("Move bounds inward");//!
+            while (A[left].compareTo(pivot) < 0) {
+                aRec.breakHere("Move left up");//!
+                left++;
+                iLeft.set(left);//!
             }
-            else
-                break;
+            while ((right >= left) && (A[right].compareTo(pivot) >= 0)) {
+                aRec.breakHere("Move right down");//!
+                right--;
+                iRight.set(right);//!
+            }
+            if (right > left) {
+                aRec.breakHere("Swap left and right values");//!
+                swap(A, left, right);
+            } // Swap out-of-place values
+            aRec.breakHere("Have left and right met?");//!
+        }
+        aRec.breakHere("Done with partition");//!
+        return left; // Return first position in right partition
+    }
+
+    public static <T extends Comparable<T>>
+    int partition0(T[] A, int left, int right, T pivot) {
+        while (left <= right) { // Move bounds inward until they meet
+            while (A[left].compareTo(pivot) < 0) {
+                left++;
+            }
+            while ((right >= left) && (A[right].compareTo(pivot) >= 0)) {
+                right--;
+            }
+            if (right > left) {
+                swap(A, left, right);
+            } // Swap out-of-place values
+        }
+        return left; // Return first position in right partition
+    }
+
+    // From OpenDSA Data Structures and Algorithms, Chapter 13,
+    // https://opendsa-server.cs.vt.edu/OpenDSA/Books/Everything/html/Quicksort.html
+    private static <T extends Comparable<T>> void quicksort(T[] A, int i, int j) { // Quicksort
+        ActivationRecord aRec = activate(Sorting.class);//!
+        aRec.refParam("A", A).param("i", i).param("j", j);//!
+        for (int k = i; k <= j; ++k) aRec.highlight(A[k]); //!
+        aRec.breakHere("Starting quicksort recursion");//!
+        if (i < j + 1) {
+            int pivotindex = findpivot(A, i, j); // Pick a pivot
+            aRec.var("pivotindex", pivotindex).breakHere("selected pivot");//!
+            swap(A, pivotindex, j); // Stick pivot at end
+            aRec.breakHere("Moved pivot to end");//!
+            // k will be the first position in the right subarray
+            int k = partition0(A, i, j - 1, A[j]);//!            int k = partition(A, i, j - 1, A[j]);
+            aRec.clearRenderings();//!
+            for (int m = i; m < k; ++m) aRec.highlight(A[m], Color.cyan); //!
+            for (int m = k+1; m <= j; ++m) aRec.highlight(A[m], Color.green); //!
+            aRec.var("k", k).breakHere("partitioned");//!
+            swap(A, k, j); // Put pivot in place
+            aRec.breakHere("Ready to recurse on the left part.");//!
+            quicksort(A, i, k - 1); // Sort left partition
+            aRec.clearRenderings();//!
+            for (int m = i; m < k; ++m) aRec.highlight(A[m], Color.cyan); //!
+            for (int m = k+1; m <= j; ++m) aRec.highlight(A[m], Color.green); //!
+            aRec.breakHere("Ready to recurse on the right part.");//!
+            quicksort(A, k + 1, j); // Sort right partition
+            aRec.clearRenderings();//!
+            for (int m = i; m <= j; ++m) aRec.highlight(A[m]); //!
+            aRec.breakHere("Returned from both recursions");//!
+        }
+    }
+
+    public static <T extends Comparable<T>> void quicksort(T[] A) {
+        ActivationRecord aRec = activate(Sorting.class);//!
+        aRec.refParam("A", A).breakHere("starting quicksort");//!
+        quicksort(A, 0, A.length - 1);
+        aRec.breakHere("done with quicksort");//!
+    }
+
+
+
+
+    private static class Range
+    implements Renderer<Range>, CanBeRendered<Range> //!
+    {
+        public int left;
+        public int right;
+
+        public Range(int left0, int right0) {
+            left = left0;
+            right = right0;
         }
 
-        aRec.breakHere("Restore pivot");//!
-//!        std::swap( a[ i ], a[ right - 1 ] ); // Restore pivot
-    	a.get(i).swap(a.get(right.get() - 1));//!
-        
-    	aRec.breakHere("Sort small elements");//!
-    	quicksort( a, left.get(), i.get() - 1 );//!
-//!    	quicksort( a, left, i - 1 );        // Sort small elements
-    	
-    	aRec.breakHere("Sort large elements");//!
-        quicksort( a, i.get() + 1, right.get() );//!
-//!        quicksort( a, i + 1, right );       // Sort large elements
+        @Override
+        public Renderer<Range> getRenderer() {
+            return this;
+        }
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Color getColor(Range arg0) {
+            return null;
+        }
+
+        @Override
+        public List<Component> getComponents(Range arg0) {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<Connection> getConnections(Range arg0) {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Horizontal;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return 1.0;
+        }
+
+        @Override
+        public String getValue(Range r) {
+            return "" + left + "," + right;
+        }
     }
-    else  
-    {// Do an insertion sort on the subarray
-    	aRec.breakHere("Do an insertion sort on the subarray");//!
-        insertionSort( a, left, right );
+
+    public static <T extends Comparable<T>> void quicksort2(T[] A) {
+        ActivationRecord aRec = activate(Sorting.class);//!
+        aRec.refParam("A", A).breakHere("Starting iterative quicksort");;//!
+        Stack<Range> stack = new Stack<>();
+        stack.push(new Range(0, A.length - 1));
+        aRec.var("stack",stack).breakHere("Stack has been initialized");//!
+        while (!stack.isEmpty()) {
+            Range range = stack.pop();
+
+            int i = range.left;
+            int j = range.right;
+            aRec.clearRenderings(); for (int m = 0; m < A.length; ++m) if (m < i || m > j) aRec.highlight(A[m], Color.gray);//!
+            aRec.var("i", i).var("j", j).breakHere("Work on range from " + i + " to " + j);//!
+
+            if (i < j + 1) {
+                int pivotindex = findpivot(A, i, j); // Pick a pivot
+                aRec.var("pivotindex", pivotindex).breakHere("pivot selected");//!
+                swap(A, pivotindex, j); // Stick pivot at end
+                // k will be the first position in the right subarray
+                int k = partition0(A, i, j - 1, A[j]);//!                int k = partition(A, i, j - 1, A[j]);
+                for (int m = i; m < k; ++m) aRec.highlight(A[m], Color.cyan);//!
+                for (int m = k+1; m <= j; ++m) aRec.highlight(A[m], Color.green);//!
+                aRec.var("k", k).breakHere("partitioned");//!
+                swap(A, k, j); // Put pivot in place
+                // quicksort(A, i, k - 1);
+                stack.push(new Range(i, k - 1)); // Sort left partition
+                aRec.breakHere("pushed left subrange");//!
+                stack.push(new Range(k + 1, j)); // Sort right partition
+                aRec.breakHere("pushed right subrange");//!
+            }
+        }
     }
-	a.popIndices();//!
+
+        
 }
-
-
-
-
-
-
-/*
-*  Quicksort algorithm (driver).
-*/
-//!template <typename Comparable>
-void quicksort( ArrayList<DiscreteInteger> a, int size)//!
-//!void quicksort( vector<Comparable> & a )
-{
-	ActivationRecord aRec = activate(getClass());//!
-	aRec.refParam("a",a);//!
-	aRec.breakHere("start quicksorting");//!
-	
-	quicksort( a, 0, size - 1 );//!
-//!    quicksort( a, 0, a.size( ) - 1 );
-}
-
-
-/*
- * Internal selection method that makes recursive calls.
- * Uses median-of-three partitioning and a cutoff of 10.
- * Places the kth smallest item in a[k-1].
- * a is an array of Comparable items.
- * left is the left-most index of the subarray.
- * right is the right-most index of the subarray.
- * k is the desired rank (1 is minimum) in the entire array.
- */
-//!template <typename Comparable>
-//!void quickSelect( vector<Comparable> & a, int left, int right, int k )
-//!{
-//!    if( left + 10 <= right )
-//!    {
-//!        const Comparable & pivot = median3( a, left, right );
-
-            // Begin partitioning
-//!        int i = left, j = right - 1;
-//!        for( ; ; )
-//!        {
-//!            while( a[ ++i ] < pivot ) { }
-//!            while( pivot < a[ --j ] ) { }
-//!            if( i < j )
-//!                std::swap( a[ i ], a[ j ] );
-//!            else
-//!                break;
-//!        }
-
-//!        std::swap( a[ i ], a[ right - 1 ] );  // Restore pivot
-
-            // Recurse; only this part changes
-//!        if( k <= i )
-//!            quickSelect( a, left, i - 1, k );
-//!        else if( k > i + 1 )
-//!            quickSelect( a, i + 1, right, k );
-//!    }
-//!    else  // Do an insertion sort on the subarray
-//!        insertionSort( a, left, right );
-//!}
-
-/*
- * Quick selection algorithm.
- * Places the kth smallest item in a[k-1].
- * a is an array of Comparable items.
- * k is the desired rank (1 is minimum) in the entire array.
- */
-//!template <typename Comparable>
-//!void quickSelect( vector<Comparable> & a, int k )
-//!{
-//!    quickSelect( a, 0, a.size( ) - 1, k );
-//!}
-
-
-//!template <typename Comparable>
-//!void SORT( vector<Comparable> & items )
-//!{
-//!    if( items.size( ) > 1 )
-//!    {
-//!        vector<Comparable> smaller;
-//!        vector<Comparable> same;
-//!        vector<Comparable> larger;
-        
-//!        auto chosenItem = items[ items.size( ) / 2 ];
-        
-//!        for( auto & i : items )
-//!        {
-//!            if( i < chosenItem )
-//!                smaller.push_back( std::move( i ) );
-//!            else if( chosenItem < i )
-//!                larger.push_back( std::move( i ) );
-//!            else
-//!                same.push_back( std::move( i ) );
-//!        }
-        
-//!        SORT( smaller );     // Recursive call!
-//!        SORT( larger );      // Recursive call!
-        
-//!        std::move( begin( smaller ), end( smaller ), begin( items ) );
-//!        std::move( begin( same ), end( same ), begin( items ) + smaller.size( ) );
-//!        std::move( begin( larger ), end( larger ), end( items ) - larger.size( ) );
-
-/*
-        items.clear( );
-        items.insert( end( items ), begin( smaller ), end( smaller ) );
-        items.insert( end( items ), begin( same ), end( same ) );
-        items.insert( end( items ), begin( larger ), end( larger ) );
-*/
-//!    }
-//!}
-
-/*
- * This is the more public version of insertion sort.
- * It requires a pair of iterators and a comparison
- * function object.
- */
-//!template <typename RandomIterator, typename Comparator>
-//!void insertionSort( const RandomIterator & begin,
-//!                    const RandomIterator & end,
-//!                    Comparator lessThan )
-//!{
-//!    if( begin == end )
-//!        return;
-        
-//!    RandomIterator j;
-
-//!    for( RandomIterator p = begin+1; p != end; ++p )
-//!    {
-//!        auto tmp = std::move( *p );
-//!        for( j = p; j != begin && lessThan( tmp, *( j-1 ) ); --j )
-//!            *j = std::move( *(j-1) );
-//!        *j = std::move( tmp );
-//!    }
-//!}
-
-/*
- * The two-parameter version calls the three parameter version, using C++11 decltype
- */
-//!template <typename RandomIterator>
-//!void insertionSort( const RandomIterator & begin,
-//!                    const RandomIterator & end )
-//!{
-//!    insertionSort( begin, end, less<decltype(*begin )>{ } );
-//!}
-
-
-//!#endif  
-        
-        
-}//!

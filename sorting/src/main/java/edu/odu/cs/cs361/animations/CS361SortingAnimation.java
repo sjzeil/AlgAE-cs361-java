@@ -89,13 +89,31 @@ public class CS361SortingAnimation extends LocalJavaAnimation {
 			}
 		});
 
-        /*		register ("Quick Sort", new MenuFunction() {
+		register ("partition", new MenuFunction() {
 			@Override
 			public void selected() {
-				new Sorting().quicksort (array, array.size());
+                //List<DiscreteInteger> list = new ArrayList<>(Arrays.asList(array));
+                DiscreteInteger pivot = new DiscreteInteger(array[array.length/2].get());
+				Sorting.partition (array, 0, array.length-1, pivot);
+                //int i = 0;
+                //for (DiscreteInteger di: list) array[i] = di;
 			}
 		});
-*/
+
+		register ("Quick Sort (recursive)", new MenuFunction() {
+			@Override
+			public void selected() {
+				Sorting.quicksort (array);
+			}
+		});
+
+        register ("Quick Sort (iterative)", new MenuFunction() {
+			@Override
+			public void selected() {
+				Sorting.quicksort2 (array);
+			}
+		});
+
 	}
 	
 	public void randomArrayGenerated()
