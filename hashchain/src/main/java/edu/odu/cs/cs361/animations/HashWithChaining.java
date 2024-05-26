@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.util.List;
 
 import edu.odu.cs.AlgAE.Animations.LocalJavaAnimation;
+import edu.odu.cs.AlgAE.Common.Snapshot.Entity.Directions;
 import edu.odu.cs.AlgAE.Server.MenuFunction;
 import edu.odu.cs.AlgAE.Server.MemoryModel.ActivationStack;
 import edu.odu.cs.AlgAE.Server.MemoryModel.Component;
@@ -30,9 +31,9 @@ public class HashWithChaining extends LocalJavaAnimation {
 		@Override
 		public List<Component> getComponents(hash<?> ht) {
 			LinkedList<Component> comps = new LinkedList<Component>();
-			comps.add (new Component(ht.numBuckets, "numBuckets"));
-			comps.add (new Component(ht.hashtableSize, "hashtableSize"));
-			comps.add (new Component(ht.bucket, "bucket"));
+			comps.add (new Component(ht.hSize, "hSize"));
+			comps.add (new Component(ht.theSize, "theSize"));
+			comps.add (new Component(ht.wrapper, "table"));
 			return comps;
 		}
 
@@ -41,10 +42,20 @@ public class HashWithChaining extends LocalJavaAnimation {
 			return new LinkedList<Connection>();
 		}
 
-		@Override
-		public int getMaxComponentsPerRow(hash<?> obj) {
-			return 1;
-		}
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Vertical;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return null;
+        }
 
 	}
 
@@ -111,14 +122,24 @@ public class HashWithChaining extends LocalJavaAnimation {
 		}
 
 		@Override
-		public int getMaxComponentsPerRow(SillyString obj) {
-			return 1;
-		}
-
-		@Override
 		public int compareTo(SillyString o) {
 			return s.compareTo(o.s);
 		}
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Vertical;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return null;
+        }
 	}
 
 	hash<SillyString> table = new hash<HashWithChaining.SillyString>(6);
@@ -134,7 +155,7 @@ public class HashWithChaining extends LocalJavaAnimation {
 			@Override
 			public void selected() {
 				generateInitialTable();
-				globalVar("table", table);
+				globalVar("set", table);
 				ActivationStack stk = getMemoryModel().getActivationStack();
 				stk.render(hash.class, new HashTableRendering());
 			}
