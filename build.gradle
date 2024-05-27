@@ -19,7 +19,7 @@ subprojects {
 
 
     dependencies {
-        implementation 'edu.odu.cs.algae:algae-client-server:4.5'
+        implementation 'edu.odu.cs.algae:algae-client-server:4.6'
     }
 
     def coursePath = '/home/zeil/courses/cs361/latest/Directory/animations/'

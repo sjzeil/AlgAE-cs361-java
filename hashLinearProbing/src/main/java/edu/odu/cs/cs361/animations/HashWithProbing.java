@@ -38,7 +38,7 @@ public class HashWithProbing extends LocalJavaAnimation {
 			LinkedList<Component> comps = new LinkedList<Component>();
 			comps.add (new Component(ht.hSize, "hSize"));
 			comps.add (new Component(ht.theSize, "theSize"));
-			comps.add (new Component(ht.table));
+			comps.add (new Component(ht.shadow));
 			return comps;
 		}
 
