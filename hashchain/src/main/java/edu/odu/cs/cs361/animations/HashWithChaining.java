@@ -33,7 +33,7 @@ public class HashWithChaining extends LocalJavaAnimation {
 			LinkedList<Component> comps = new LinkedList<Component>();
 			comps.add (new Component(ht.hSize, "hSize"));
 			comps.add (new Component(ht.theSize, "theSize"));
-			comps.add (new Component(ht.wrapper, "table"));
+			comps.add (new Component(ht.shadowRef, "table"));
 			return comps;
 		}
 
@@ -174,11 +174,11 @@ public class HashWithChaining extends LocalJavaAnimation {
 		});
 
 
-		register ("find", new MenuFunction() {
+		register ("contains", new MenuFunction() {
 			@Override
 			public void selected() {
 				String value = promptForInput("Names to search for: ", ".+");
-					table.find(new SillyString(value));
+					table.contains(new SillyString(value));
 			}
 		});
 

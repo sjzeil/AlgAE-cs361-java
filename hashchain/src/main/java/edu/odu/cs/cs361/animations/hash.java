@@ -13,27 +13,29 @@ import edu.odu.cs.AlgAE.Server.MemoryModel.Connection;
 import edu.odu.cs.AlgAE.Server.Rendering.CanBeRendered;
 import edu.odu.cs.AlgAE.Server.Rendering.Renderer;
 import edu.odu.cs.AlgAE.Server.Utilities.ArrayList;//!
-import edu.odu.cs.AlgAE.Server.Utilities.DiscreteInteger;//!
-import edu.odu.cs.AlgAE.Server.Utilities.Index;//!
+import edu.odu.cs.AlgAE.Server.Utilities.IndexedArray;
 import edu.odu.cs.AlgAE.Server.Utilities.SimpleReference;
 
 public class hash<T> {
 
     int hSize; // number of buckets in the table
     int theSize; // the number of data values in the table
-    ArrayList<ArrayList<T>> table;
+    Object[] table;
+    IndexedArray<Object> shadow;//!
+    SimpleReference shadowRef;//!
 
 
     public hash(int nBuckets) {
         hSize = nBuckets;
-        table = new ArrayList<ArrayList<T>>();
-        table.renderHorizontally(false);//!
+        table = new Object[hSize];
+        shadow = new IndexedArray<>(table);//!
+        shadow.renderHorizontally(false);//!
+        shadow.showNumbers(false);//!
         for (int i = 0; i < nBuckets; ++i) {
-            ArrayList<T> b = new ArrayList<>();
-            table.add(b);
+            table[i] = new ArrayList<>();
         }
         theSize = 0;
-        wrapper = new Wrapper<T>();//!
+        shadowRef = new SimpleReference(shadow, 90, 90);//!
     }
 
     public boolean empty() {
@@ -44,7 +46,7 @@ public class hash<T> {
         return theSize;
     }
 
-    public boolean find(T item)//!
+    public boolean contains(T item)//!
     {
         ActivationRecord aRec = activate(getClass());//!
 
@@ -53,12 +55,16 @@ public class hash<T> {
         aRec.breakHere("Starting find - compute the hash function");//!
         int hashIndex = item.hashCode() % hSize;
         // Get the bucket that we will be working with
-        aRec.var("hashIndex", new Index(hashIndex, wrapper)).breakHere("Get the indicated bucket");//!
-        ArrayList<T> myBucket = table.get(hashIndex);
+        shadow.pushIndices();//!
+        shadow.indexedBy(hashIndex, "hashIndex");//!
+        aRec.var("hashIndex", hashIndex).breakHere("Get the indicated bucket");//!
+        ArrayList<T> myBucket = (ArrayList<T>)table[hashIndex];
         aRec.refVar("myBucket", myBucket);//!
         aRec.breakHere("Search the myBucket");//!
         int k = myBucket.indexOf(item);
-        aRec.var("k", new Index(k, wrapper)).breakHere("Did we find it?");
+        shadow.indexedBy(k, "k");//!
+        aRec.var("k", k).breakHere("Did we find it?");//!
+        shadow.popIndices();//!
         return k >= 0;
     }
 
@@ -69,14 +75,17 @@ public class hash<T> {
       aRec.param("item", item);//!
       aRec.breakHere("Starting insert - compute the hash function");//!
       int hashIndex = item.hashCode() % hSize;
-      aRec.var("hashIndex", new Index(hashIndex, wrapper));//!
+      shadow.pushIndices();//!
+      shadow.indexedBy(hashIndex, "hashIndex");//!
+      aRec.var("hashIndex", hashIndex);//!
       aRec.breakHere("Get the indicated bucket");//!
       // Get the bucket we will be working with
-       ArrayList<T> myBucket = table.get(hashIndex);
+       ArrayList<T> myBucket = (ArrayList<T>)table[hashIndex];
        aRec.refVar("myBucket",myBucket);//!
        aRec.breakHere("Search myBucket");//!
        int k = myBucket.indexOf(item);
-       aRec.var("k", new Index(k, myBucket)).breakHere("did we find it?");//!
+       shadow.indexedBy(k, "k");//!
+       aRec.var("k", k).breakHere("did we find it?");//!
        if (k < 0) {
           // Did not find it.
           aRec.breakHere("Did not find it. Add to the bucket");//!
@@ -88,19 +97,19 @@ public class hash<T> {
           // no insertion
 	      aRec.breakHere("Found it. Ignore this item.");//!
         }
+        shadow.popIndices();//!
 }
 
     public void clear() {//!
-        table = new ArrayList<ArrayList<T>>();//!
         for (int i = 0; i < hSize; ++i) //!
-            table.add(new ArrayList<T>());//!
+            ((ArrayList<T>)table[i]).clear();
         theSize = 0;//!
     }//!
 
     public void quickInsert(T item)//!
     {
         int hashIndex = item.hashCode() % hSize;//!
-        ArrayList<T> myBucket = table.get(hashIndex);//!
+        ArrayList<T> myBucket = (ArrayList<T>)table[hashIndex];//!
         ListIterator<T> bucketIter = null;//!
         bucketIter = myBucket.listIterator();//!
         while (bucketIter.hasNext())//!
@@ -114,64 +123,4 @@ public class hash<T> {
         theSize++;//!
     }//!
 
-    class Wrapper<E> implements CanBeRendered<Wrapper<E>>, Renderer<Wrapper<E>> {//!
-
-        SimpleReference[] buckets;//!
-
-        public Wrapper() {//!
-            buckets = new SimpleReference[hSize];//!
-            for (int i = 0; i < hSize; ++i) {//!
-                buckets[i] = new SimpleReference(null);//!
-            }//!
-        }//!
-
-        @Override//!
-        public Boolean getClosedOnConnections() {//!
-            return false;//!
-        }//!
-
-        @Override//!
-        public Color getColor(hash<T>.Wrapper<E> arg0) {//!
-            return null;//!
-        }//!
-
-        @Override//!
-        public List<Component> getComponents(hash<T>.Wrapper<E> wrapper) {//!
-            List<Component> components = new java.util.ArrayList<>();//!
-            for (int i = 0; i < hSize; ++i) {//!
-                if (buckets[i].get() != table.get(i)) {//!
-                    buckets[i].set(table.get(i));//!
-                }//!
-                components.add(new Component(buckets[i], ""+i));//!
-            }//!
-            return components;//!
-        }
-
-        @Override//!
-        public List<Connection> getConnections(hash<T>.Wrapper<E> arg0) {//!
-            return new java.util.ArrayList<>();//!
-        }//!
-
-        @Override//!
-        public Directions getDirection() {//!
-            return Directions.Vertical;//!
-        }//!
-
-        @Override//!
-        public Double getSpacing() {//!
-            return null;//!
-        }//!
-
-        @Override//!
-        public String getValue(hash<T>.Wrapper<E> arg0) {//!
-            return "";//!
-        }//!
-
-        @Override//!
-        public Renderer<hash<T>.Wrapper<E>> getRenderer() {//!
-            return this;//!
-        }//!
-
-    }//!
-    Wrapper<T> wrapper;//!
 }
