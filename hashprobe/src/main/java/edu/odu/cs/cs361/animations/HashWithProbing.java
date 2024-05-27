@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import edu.odu.cs.AlgAE.Animations.LocalJavaAnimation;
+import edu.odu.cs.AlgAE.Common.Snapshot.Entity.Directions;
 import edu.odu.cs.AlgAE.Server.MenuFunction;
 import edu.odu.cs.AlgAE.Server.MemoryModel.ActivationStack;
 import edu.odu.cs.AlgAE.Server.MemoryModel.Component;
@@ -46,46 +47,23 @@ public class HashWithProbing extends LocalJavaAnimation {
 			return new LinkedList<Connection>();
 		}
 
-		@Override
-		public int getMaxComponentsPerRow(hash_set_LP<?> obj) {
-			return 2;
-		}
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Vertical;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return null;
+        }
 
 	}
 
-	public class QPHashTableRendering implements Renderer<hash_set_QP<?>> {
-
-		@Override
-		public String getValue(hash_set_QP<?> obj) {
-			return "";
-		}
-
-		@Override
-		public Color getColor(hash_set_QP<?> obj) {
-			return null;
-		}
-
-		@Override
-		public List<Component> getComponents(hash_set_QP<?> ht) {
-			LinkedList<Component> comps = new LinkedList<Component>();
-			comps.add (new Component(ht.hSize, "hSize"));
-			comps.add (new Component(ht.theSize, "theSize"));
-			comps.add (new Component(ht.table));
-			return comps;
-		}
-
-		@Override
-		public List<Connection> getConnections(hash_set_QP<?> obj) {
-			return new LinkedList<Connection>();
-		}
-
-		@Override
-		public int getMaxComponentsPerRow(hash_set_QP<?> obj) {
-			return 2;
-		}
-
-	}
-	
 	
 	
 	class TableRendering implements Renderer<ArrayList<?>> {
@@ -109,14 +87,24 @@ public class HashWithProbing extends LocalJavaAnimation {
 		}
 
 		@Override
-		public int getMaxComponentsPerRow(ArrayList<?> obj) {
-			return 100;
-		}
-
-		@Override
 		public String getValue(ArrayList<?> obj) {
 			return "";
 		}
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Vertical;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return null;
+        }
 		
 	}
 
@@ -182,52 +170,30 @@ public class HashWithProbing extends LocalJavaAnimation {
 		}
 
 		@Override
-		public int getMaxComponentsPerRow(SillyString obj) {
-			return 1;
-		}
-
-		@Override
 		public int compareTo(SillyString o) {
 			return s.compareTo(o.s);
 		}
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Vertical;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return null;
+        }
 	}
 
 	LocalJavaAnimation self;
 	
 	hash_set_LP<SillyString> linear = new hash_set_LP<HashWithProbing.SillyString>();
-	hash_set_QP<SillyString> quadratic = new hash_set_QP<HashWithProbing.SillyString>();
 
-	class Twotables implements Renderer<Twotables>, CanBeRendered<Twotables> {
-
-		@Override
-		public Color getColor(Twotables obj) {
-			return new Color(1.0f, 1.0f, 1.0f, 0.0f);
-		}
-		@Override
-		public List<Component> getComponents(Twotables obj) {
-			LinkedList<Component> comps = new LinkedList<Component>();
-			comps.add (new Component(linear, "linear"));
-			comps.add (new Component(quadratic, "quadratic"));
-			return comps;
-		}
-		@Override
-		public List<Connection> getConnections(Twotables obj) {
-			return new LinkedList<Connection>();
-		}
-		@Override
-		public int getMaxComponentsPerRow(Twotables obj) {
-			return 1;
-		}
-		@Override
-		public String getValue(Twotables obj) {
-			return "";
-		}
-		@Override
-		public Renderer<Twotables> getRenderer() {
-			return this;
-		}
-		
-	}
 	
 	
 	
@@ -240,10 +206,9 @@ public class HashWithProbing extends LocalJavaAnimation {
 			@Override
 			public void selected() {
 				generateInitialTable();
-				globalVar("Tables", new Twotables());
+				globalVar("set", linear);
 				ActivationStack stk = getMemoryModel().getActivationStack();
 				stk.render(hash_set_LP.class, new LPHashTableRendering());
-				stk.render(hash_set_QP.class, new QPHashTableRendering());
 				stk.render(ArrayList.class, new TableRendering());
 			}
 		});
@@ -256,7 +221,6 @@ public class HashWithProbing extends LocalJavaAnimation {
 				String[] values = valuesList.split("[ ,]+");
 				for (String v: values) {
 					linear.insert(new SillyString(v));
-					quadratic.insert(new SillyString(v));
 				}
 			}
 		});
@@ -267,7 +231,6 @@ public class HashWithProbing extends LocalJavaAnimation {
 			public void selected() {
 				String value = promptForInput("Names to search for: ", ".+");
 				out.println(value + " occurs in the table " +	linear.count(new SillyString(value)) + " times");
-				out.println(value + " occurs in the table " +	quadratic.count(new SillyString(value)) + " times");
 			}
 		});
 
@@ -276,7 +239,6 @@ public class HashWithProbing extends LocalJavaAnimation {
 			public void selected() {
 				String value = promptForInput("Name to remove: ", ".+");
 				linear.erase(new SillyString(value));
-				quadratic.erase(new SillyString(value));
 			}
 		});
 
@@ -284,7 +246,6 @@ public class HashWithProbing extends LocalJavaAnimation {
 			@Override
 			public void selected() {
 				linear.clear ();
-				quadratic.clear ();
 			}
 		});
 
@@ -295,7 +256,6 @@ public class HashWithProbing extends LocalJavaAnimation {
 		String[] values = valuesList.split("[ ,]+");
 		for (String v: values) {
 			linear.quickInsert(new SillyString(v));
-			quadratic.quickInsert(new SillyString(v));
 		}
 	}
 	

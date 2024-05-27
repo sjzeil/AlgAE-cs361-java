@@ -12,6 +12,7 @@ include 'arrayList'
 include 'arrayOps'
 include 'doublyLinkedLists'
 include 'hashchain'
+include 'hashprobe'
 include 'sorting'
 /*
 include 'avl'
