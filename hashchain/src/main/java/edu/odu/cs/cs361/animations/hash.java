@@ -50,7 +50,7 @@ public class hash<T> {
     {
         ActivationRecord aRec = activate(getClass());//!
 
-        // hashIndex is the bucket number (index of the linked list)
+        // hashIndex is the bucket number (index of the list)
         aRec.param("item", item);//!
         aRec.breakHere("Starting find - compute the hash function");//!
         int hashIndex = item.hashCode() % hSize;
@@ -68,37 +68,37 @@ public class hash<T> {
         return k >= 0;
     }
 
-  public void insert(T item) {
-	  ActivationRecord aRec = activate(getClass());//!
+    public void insert(T item) {
+        ActivationRecord aRec = activate(getClass());//!
 
-      // hashIndex is the bucket number
-      aRec.param("item", item);//!
-      aRec.breakHere("Starting insert - compute the hash function");//!
-      int hashIndex = item.hashCode() % hSize;
-      shadow.pushIndices();//!
-      shadow.indexedBy(hashIndex, "hashIndex");//!
-      aRec.var("hashIndex", hashIndex);//!
-      aRec.breakHere("Get the indicated bucket");//!
-      // Get the bucket we will be working with
-       ArrayList<T> myBucket = (ArrayList<T>)table[hashIndex];
-       aRec.refVar("myBucket",myBucket);//!
-       aRec.breakHere("Search myBucket");//!
-       int k = myBucket.indexOf(item);
-       shadow.indexedBy(k, "k");//!
-       aRec.var("k", k).breakHere("did we find it?");//!
-       if (k < 0) {
-          // Did not find it.
-          aRec.breakHere("Did not find it. Add to the bucket");//!
-          myBucket.add(item);
-          ++theSize;
-          aRec.breakHere("Added");//!
+        // hashIndex is the bucket number
+        aRec.param("item", item);//!
+        aRec.breakHere("Starting insert - compute the hash function");//!
+        int hashIndex = item.hashCode() % hSize;
+        shadow.pushIndices();//!
+        shadow.indexedBy(hashIndex, "hashIndex");//!
+        aRec.var("hashIndex", hashIndex);//!
+        aRec.breakHere("Get the indicated bucket");//!
+        // Get the bucket we will be working with
+        ArrayList<T> myBucket = (ArrayList<T>) table[hashIndex];
+        aRec.refVar("myBucket", myBucket);//!
+        aRec.breakHere("Search myBucket");//!
+        int k = myBucket.indexOf(item);
+        shadow.indexedBy(k, "k");//!
+        aRec.var("k", k).breakHere("did we find it?");//!
+        if (k < 0) {
+            // Did not find it.
+            aRec.breakHere("Did not find it. Add to the bucket");//!
+            myBucket.add(item);
+            ++theSize;
+            aRec.breakHere("Added");//!
         } else {
-          // item is in the hash table. duplicates not allowed.
-          // no insertion
-	      aRec.breakHere("Found it. Ignore this item.");//!
+            // item is in the hash table. duplicates not allowed.
+            // no insertion
+            aRec.breakHere("Found it. Ignore this item.");//!
         }
         shadow.popIndices();//!
-}
+    }
 
     public void clear() {//!
         for (int i = 0; i < hSize; ++i) //!

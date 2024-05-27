@@ -79,7 +79,7 @@ public class hash_set_QP<T> {
         @Override
         public Double getSpacing() {//!
             return null;//!
-        }
+        }//!
     }
 
     int hSize = 11;
@@ -105,7 +105,14 @@ public class hash_set_QP<T> {
         return theSize;
     }
 
-    boolean insert(T element) {
+    // This function determines where we look next if the
+    // slot indicated by the hash function is already occupied
+    // by something else.
+    private int f(int i) {
+        return i*i;  // Quadratic probing
+    }
+
+    boolean add(T element) {
         ActivationRecord aRec = activate(getClass());//!
         aRec.param("element", element);//!
         shadow.pushIndices();//!
@@ -129,7 +136,7 @@ public class hash_set_QP<T> {
                 aRec.breakHere("table[h] is occupied - keep probing.");//!
                 ++count;
                 aRec.var("count", count);//!
-                h = (h0 + /* f(count) */ count*count) % hSize;
+                h = (h0 + f(count)) % hSize;
                 shadow.indexedBy(h, "h");//!
                 aRec.breakHere("Next possibility for h.");//!
             }
@@ -147,10 +154,9 @@ public class hash_set_QP<T> {
                 shadow.popIndices();//!
                 return true;
             }
-        } else { // replace
-            table[h].data = element;
+        } else { // already in the set
             shadow.popIndices();//!
-            return true;
+            return false;
         }
     }
 
@@ -164,7 +170,7 @@ public class hash_set_QP<T> {
             while (table[h].info == HashStatus.Occupied && count < hSize)//!
             {//!
                 ++count;//!
-                h = (h0 + /* f(count) */ count*count) % hSize;//!
+                h = (h0 + f(count)) % hSize;//!
             } //!
             if (count >= hSize)//!
                 return false; // could not add//!
@@ -182,7 +188,7 @@ public class hash_set_QP<T> {
         } //!
     }//!
 
-    int count(T element) {
+    boolean contains(T element) {
         ActivationRecord aRec = activate(getClass());//!
         aRec.param("element", element);//!
         shadow.pushIndices();//!
@@ -195,10 +201,10 @@ public class hash_set_QP<T> {
         shadow.indexedBy(h, "h");
         aRec.breakHere("Returned from find - return 0 or 1");//!
         shadow.popIndices();//!
-        return (h != hSize) ? 1 : 0;
+        return h != hSize;
     }
 
-    void erase(T element)//! void erase (const T& element)
+    void erase(T element)
     {
         ActivationRecord aRec = activate(getClass());//!
         aRec.param("element", element);//!
@@ -234,7 +240,7 @@ public class hash_set_QP<T> {
         aRec.param("h0", h0);//!
         shadow.pushIndices();//!
         shadow.indexedBy(h0, "h0");
-        aRec.breakHere("Starting insert");//!
+        aRec.breakHere("Starting find");//!
         int h = h0 % hSize;
         shadow.indexedBy(h, "h");//!
         aRec.var("h", h);
@@ -249,7 +255,7 @@ public class hash_set_QP<T> {
             aRec.breakHere("table[h] is occupied or deleted - keep probing.");//!
             ++count;
             aRec.var("count", count);//!
-            h = (h0 + /* f(count) */ count*count) % hSize;
+            h = (h0 + f(count)) % hSize;
             shadow.indexedBy(h, "h");//!
             aRec.breakHere("Next possibility for h.");//!
         }
@@ -275,7 +281,7 @@ public class hash_set_QP<T> {
                 && count < hSize)//!
         {//!
             ++count;//!
-            h = (h0 + /* f(count) */ count*count) % hSize;//!
+            h = (h0 + f(count)) % hSize;//!
         } //!
         if (count >= hSize//!
                 || table[h].info == HashStatus.Empty)//!

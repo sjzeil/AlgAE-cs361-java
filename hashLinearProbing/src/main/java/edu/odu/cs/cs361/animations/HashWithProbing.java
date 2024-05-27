@@ -220,7 +220,7 @@ public class HashWithProbing extends LocalJavaAnimation {
 				String valuesList = promptForInput("Comma-separated list of names to insert: ", ".+");
 				String[] values = valuesList.split("[ ,]+");
 				for (String v: values) {
-					linear.insert(new SillyString(v));
+					linear.add(new SillyString(v));
 				}
 			}
 		});
@@ -230,7 +230,7 @@ public class HashWithProbing extends LocalJavaAnimation {
 			@Override
 			public void selected() {
 				String value = promptForInput("Names to search for: ", ".+");
-				out.println(value + " occurs in the table " +	linear.count(new SillyString(value)) + " times");
+				out.println("Does " + value + " occur in the table? " +	linear.contains(new SillyString(value)));
 			}
 		});
 
