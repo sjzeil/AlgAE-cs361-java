@@ -14,7 +14,7 @@ import edu.odu.cs.AlgAE.Server.Rendering.CanBeRendered;//!
 import edu.odu.cs.AlgAE.Server.Rendering.Renderer;//!
 import edu.odu.cs.AlgAE.Server.Utilities.IndexedArray;//!
 
-public class hash_set_LP<T> {
+public class hash_set_QP<T> {
 
     enum HashStatus {
         Occupied, Empty, Deleted
@@ -87,7 +87,7 @@ public class hash_set_LP<T> {
     IndexedArray<HashEntry> shadow;//!
     int theSize;
 
-    hash_set_LP() {
+    hash_set_QP() {
         table = new HashEntry[hSize];
         theSize = 0;
         for (int i = 0; i < hSize; ++i) {
@@ -129,7 +129,7 @@ public class hash_set_LP<T> {
                 aRec.breakHere("table[h] is occupied - keep probing.");//!
                 ++count;
                 aRec.var("count", count);//!
-                h = (h0 + /* f(count) */ count) % hSize;
+                h = (h0 + /* f(count) */ count*count) % hSize;
                 shadow.indexedBy(h, "h");//!
                 aRec.breakHere("Next possibility for h.");//!
             }
@@ -164,7 +164,7 @@ public class hash_set_LP<T> {
             while (table[h].info == HashStatus.Occupied && count < hSize)//!
             {//!
                 ++count;//!
-                h = (h0 + /* f(count) */ count) % hSize;//!
+                h = (h0 + /* f(count) */ count*count) % hSize;//!
             } //!
             if (count >= hSize)//!
                 return false; // could not add//!
@@ -249,7 +249,7 @@ public class hash_set_LP<T> {
             aRec.breakHere("table[h] is occupied or deleted - keep probing.");//!
             ++count;
             aRec.var("count", count);//!
-            h = (h0 + /* f(count) */ count) % hSize;
+            h = (h0 + /* f(count) */ count*count) % hSize;
             shadow.indexedBy(h, "h");//!
             aRec.breakHere("Next possibility for h.");//!
         }
@@ -275,7 +275,7 @@ public class hash_set_LP<T> {
                 && count < hSize)//!
         {//!
             ++count;//!
-            h = (h0 + /* f(count) */ count) % hSize;//!
+            h = (h0 + /* f(count) */ count*count) % hSize;//!
         } //!
         if (count >= hSize//!
                 || table[h].info == HashStatus.Empty)//!

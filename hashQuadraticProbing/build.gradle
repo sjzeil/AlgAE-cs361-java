@@ -1,0 +1,11 @@
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'CS361/Hash_with_linear_probing',
+           'Implementation-Version': version,
+            'Main-Class': 'edu.odu.cs.cs361.animations.HashWithProbing'
+    }
+    from { configurations.runtimeClasspath.collect {
+         it.isDirectory() ? it : zipTree(it) } }
+	from sourceSets.main.java
+}
