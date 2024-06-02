@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Random;
 
 import edu.odu.cs.AlgAE.Animations.LocalJavaAnimation;
+import edu.odu.cs.AlgAE.Common.Snapshot.Entity.Directions;
 import edu.odu.cs.AlgAE.Server.MenuFunction;
 import edu.odu.cs.AlgAE.Server.MemoryModel.Component;
 import edu.odu.cs.AlgAE.Server.MemoryModel.Connection;
 import edu.odu.cs.AlgAE.Server.Rendering.Renderer;
+import edu.odu.cs.AlgAE.Server.Utilities.SimpleReference;
 
 public class TreeTraversals extends LocalJavaAnimation {
 
@@ -28,21 +30,21 @@ public class TreeTraversals extends LocalJavaAnimation {
 	}
 
 
-	class tnodeRendering implements Renderer<tnode<String>> {
+	class BinNodeRendering implements Renderer<BinNode<String>> {
 		
 		@Override
-		public Color getColor(tnode<String> obj) {
+		public Color getColor(BinNode<String> obj) {
 			return Color.cyan;
 		}
 
 		@Override
-		public List<Component> getComponents(tnode<String> obj) {
+		public List<Component> getComponents(BinNode<String> obj) {
 			List<Component> results = new LinkedList<Component>();
 			return results;
 		}
 		
 		@Override
-		public List<Connection> getConnections(tnode<String> t) {
+		public List<Connection> getConnections(BinNode<String> t) {
 			LinkedList<Connection> results = new LinkedList<Connection>();
 			Connection leftC = new Connection(t.left, 215, 215);
 			Connection rightC = new Connection(t.right, 145, 145);
@@ -50,15 +52,26 @@ public class TreeTraversals extends LocalJavaAnimation {
 			results.add (rightC);
 			return results;
 		}
-		@Override
-		public int getMaxComponentsPerRow(tnode<String> obj) {
-			return 0;
-		}
 		
 		@Override
-		public String getValue(tnode<String> t) {
-			return "" + t.nodeValue;
+		public String getValue(BinNode<String> t) {
+			return "" + t.value;
 		}
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Horizontal;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return null;
+        }
 			
 	}
 	
@@ -67,39 +80,60 @@ public class TreeTraversals extends LocalJavaAnimation {
 
 		@Override
 		public Color getColor(BinaryTrees obj) {
-			return null;
+			return edu.odu.cs.AlgAE.Common.Snapshot.Color.transparent;
 		}
 
 		@Override
-		public List<Component> getComponents(BinaryTrees obj) {
-			return new LinkedList<Component>();
+		public List<Component> getComponents(BinaryTrees tree) {
+            List<Component> results = new LinkedList<Component>();
+            results.add(new Component(tree.rootRef, "root"));
+            addTreeNodes(tree.root, results);
+			return results;
 		}
 
-		@Override
+		private void addTreeNodes(BinNode<String> root, List<Component> results) {
+            if (root != null) {
+                results.add(new Component(root));
+                addTreeNodes(root.left, results);
+                addTreeNodes(root.right, results);
+            }
+        }
+
+        @Override
 		public List<Connection> getConnections(BinaryTrees bt) {
 			LinkedList<Connection> conn = new LinkedList<Connection>();
-			conn.add(new Connection(bt.root, 165, 195));
 			return conn;
 		}
 
-		@Override
-		public int getMaxComponentsPerRow(BinaryTrees obj) {
-			return 1;
-		}
 
 		@Override
 		public String getValue(BinaryTrees obj) {
 			return "";
 		}
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.VerticalTree;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return 2.5;
+        }
 		
 	}
 
 	
 	
 	
-	public void quickInsert (tnode<String> t, String element)
+	public void quickInsert (BinNode<String> t, String element)
 	{ 
-		int comp = element.compareTo(t.nodeValue);
+		int comp = element.compareTo(t.value);
 		if (comp < 0) 
 		{
 			if (t.left != null)
@@ -108,7 +142,7 @@ public class TreeTraversals extends LocalJavaAnimation {
 			}
 			else
 			{
-				t.left = new tnode<String>(element);
+				t.left = new BinNode<String>(element);
 			}
 		} 
 		else
@@ -119,7 +153,7 @@ public class TreeTraversals extends LocalJavaAnimation {
 			}
 			else
 			{
-				t.right = new tnode<String>(element);
+				t.right = new BinNode<String>(element);
 			}
 		} 
 	}
@@ -129,7 +163,7 @@ public class TreeTraversals extends LocalJavaAnimation {
 		if (tree.root != null)
 			quickInsert(tree.root, element);
 		else
-			tree.root = new tnode<String>(element);
+			tree.root = new BinNode<String>(element);
 	}
 
 		
@@ -145,9 +179,10 @@ public class TreeTraversals extends LocalJavaAnimation {
 
 			@Override
 			public void selected() {
-				globalVar("root", bt);
+				globalVar("",bt);
 				bt.root = createSampleTree1();
-				getMemoryModel().render(tnode.class, new tnodeRendering());
+                bt.rootRef.set(bt.root);
+				getMemoryModel().render(BinNode.class, new BinNodeRendering());
 				getMemoryModel().render(BinaryTrees.class, new BinaryTreeRendering());
 			}
 			
@@ -206,21 +241,22 @@ public class TreeTraversals extends LocalJavaAnimation {
 					String c = chars.substring(k, k+1);
 					quickInsert (bt, c);
 				}
+                bt.rootRef.set(bt.root);
 			}
 		});
 
 	}
 	
 
-	public tnode<String> createSampleTree1()//!
+	public BinNode<String> createSampleTree1()//!
 	{
-		tnode<String> c13 = new tnode<String>("13", null, null);//!
-		tnode<String> a = new tnode<String>("a", null, null);//!
-		tnode<String> x = new tnode<String>("X", null, null);//!
-		tnode<String> c1 = new tnode<String>("1", null, null);//!
-		tnode<String> oplus = new tnode<String>("+", c13, a);//!
-		tnode<String> ominus = new tnode<String>("-", x, c1);//!
-		tnode<String> otimes = new tnode<String>("*", oplus, ominus);//!
+		BinNode<String> c13 = new BinNode<String>("13", null, null);//!
+		BinNode<String> a = new BinNode<String>("a", null, null);//!
+		BinNode<String> x = new BinNode<String>("X", null, null);//!
+		BinNode<String> c1 = new BinNode<String>("1", null, null);//!
+		BinNode<String> oplus = new BinNode<String>("+", c13, a);//!
+		BinNode<String> ominus = new BinNode<String>("-", x, c1);//!
+		BinNode<String> otimes = new BinNode<String>("*", oplus, ominus);//!
 		return otimes;
 	}
 	
