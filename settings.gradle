@@ -15,6 +15,7 @@ include 'hashchain'
 include 'hashLinearProbing'
 include 'hashQuadraticProbing'
 include 'sorting'
+include 'trees'
 /*
 include 'avl'
 include 'bst'
@@ -29,5 +30,4 @@ include 'queuesLL'
 include 'rpnCalculator'
 include 'singlyLinkedLists'
 include 'stacks'
-include 'trees'
 */
