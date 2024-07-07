@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import edu.odu.cs.AlgAE.Animations.LocalJavaAnimation;
+import edu.odu.cs.AlgAE.Common.Snapshot.Entity.Directions;
 import edu.odu.cs.AlgAE.Server.MenuFunction;
 import edu.odu.cs.AlgAE.Server.MemoryModel.Component;//!
 import edu.odu.cs.AlgAE.Server.MemoryModel.Connection;//!
@@ -47,24 +48,32 @@ public class BST_Ops extends LocalJavaAnimation {
 		@Override
 		public List<Connection> getConnections(BinaryNode<Integer> t) {
 			LinkedList<Connection> results = new LinkedList<Connection>();
-			//Connection parC = new Connection(t.parent, 340, 20);
 			Connection leftC = new Connection(t.left, 215, 215);
 			Connection rightC = new Connection(t.right, 145, 145);
-			//if (displayParentPointers)
-				//results.add (parC);
 			results.add (leftC);
 			results.add (rightC);
 			return results;
 		}
-		@Override
-		public int getMaxComponentsPerRow(BinaryNode<Integer> obj) {
-			return 0;
-		}
 		
 		@Override
 		public String getValue(BinaryNode<Integer> t) {
-			return "" + t.element;
+			return t.element.toString();
 		}
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Horizontal;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return null;
+        }
 			
 	}
 	
@@ -73,31 +82,51 @@ public class BST_Ops extends LocalJavaAnimation {
 
 		@Override
 		public Color getColor(BinarySearchTree<Integer> obj) {
-			return null;
+			return edu.odu.cs.AlgAE.Common.Snapshot.Color.transparent;
 		}
 
 		@Override
-		public List<Component> getComponents(BinarySearchTree<Integer> bst) {
-			LinkedList<Component> comps = new LinkedList<Component>();
-			comps.add (new Component(new SimpleReference(bst.root, 140, 220), "root"));
-			//comps.add (new Component(bst.treeSize, "treeSize"));
-			return comps;
+		public List<Component> getComponents(BinarySearchTree<Integer> tree) {
+            List<Component> results = new LinkedList<Component>();
+            results.add(new Component(tree.root, "root"));
+            addTreeNodes(tree.root, results);
+			return results;
 		}
 
-		@Override
-		public List<Connection> getConnections(BinarySearchTree<Integer> obj) {
-			return new LinkedList<Connection>();
+		private void addTreeNodes(BinaryNode<Integer> root, List<Component> results) {
+            if (root != null) {
+                results.add(new Component(root));
+                addTreeNodes(root.left, results);
+                addTreeNodes(root.right, results);
+            }
+        }
+
+        @Override
+		public List<Connection> getConnections(BinarySearchTree<Integer> bt) {
+			LinkedList<Connection> conn = new LinkedList<Connection>();
+			return conn;
 		}
 
-		@Override
-		public int getMaxComponentsPerRow(BinarySearchTree<Integer> obj) {
-			return 2;
-		}
 
 		@Override
 		public String getValue(BinarySearchTree<Integer> obj) {
 			return "";
 		}
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.VerticalTree;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return 2.5;
+        }
 		
 	}
 
@@ -214,7 +243,7 @@ public class BST_Ops extends LocalJavaAnimation {
 		});
 		
 		
-		register("clear tree", new MenuFunction() {
+		/*register("clear tree", new MenuFunction() {
 
 			@Override
 			public void selected() {
@@ -222,7 +251,7 @@ public class BST_Ops extends LocalJavaAnimation {
 				//bst.treeSize = 0;
 			}
 			
-		});
+		});*/
 
 		register("create a random tree", new MenuFunction() {
 

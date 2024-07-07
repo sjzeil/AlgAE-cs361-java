@@ -10,6 +10,7 @@ pluginManagement {
 
 include 'arrayList'
 include 'arrayOps'
+include 'bst'
 include 'doublyLinkedLists'
 include 'hashchain'
 include 'hashLinearProbing'
@@ -18,7 +19,6 @@ include 'sorting'
 include 'trees'
 /*
 include 'avl'
-include 'bst'
 include 'bstIterators'
 include 'dijkstraPrim'
 include 'graphColoring'
