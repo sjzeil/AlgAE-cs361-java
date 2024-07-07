@@ -8,6 +8,7 @@ import java.util.Random;
 
 import edu.odu.cs.AlgAE.Server.MenuFunction;
 import edu.odu.cs.AlgAE.Animations.LocalJavaAnimation;
+import edu.odu.cs.AlgAE.Common.Snapshot.Entity.Directions;
 import edu.odu.cs.AlgAE.Server.MemoryModel.ActivationRecord;//!
 import edu.odu.cs.AlgAE.Server.MemoryModel.Component;//!
 import edu.odu.cs.AlgAE.Server.MemoryModel.Connection;//!
@@ -57,15 +58,26 @@ public class AVL_Ops extends LocalJavaAnimation {
 			results.add (rightC);
 			return results;
 		}
-		@Override
-		public int getMaxComponentsPerRow(avlNode<Integer> obj) {
-			return 1;
-		}
 		
 		@Override
 		public String getValue(avlNode<Integer> t) {
 			return "" + t.value + " (bf:" + t.balanceFactor + ")";
 		}
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Horizontal;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return null;
+        }
 			
 	}
 	
@@ -74,18 +86,26 @@ public class AVL_Ops extends LocalJavaAnimation {
 
 		@Override
 		public Color getColor(AVLtree<Integer> obj) {
-			return null;
+			return edu.odu.cs.AlgAE.Common.Snapshot.Color.transparent;
 		}
 
 		@Override
-		public List<Component> getComponents(AVLtree<Integer> bst) {
-			LinkedList<Component> comps = new LinkedList<Component>();
-			//comps.add (new Component(new SimpleReference(bst.root, 140, 220), "root"));
-			bst.rootRef.set(bst.root);
-			comps.add(new Component(bst.rootRef, "root"));
-			//comps.add (new Component(bst.treeSize, "treeSize"));
-			return comps;
+		public List<Component> getComponents(AVLtree<Integer> tree) {
+            List<Component> results = new LinkedList<Component>();
+            results.add(new Component(tree.root, "root"));
+            addTreeNodes(tree.root, results);
+			return results;
 		}
+
+		private void addTreeNodes(avlNode<Integer> root, List<Component> results) {
+            if (root != null) {
+                results.add(new Component(root));
+                addTreeNodes(root.leftChild, results);
+                addTreeNodes(root.rightChild, results);
+            }
+        }
+
+
 
 		@Override
 		public List<Connection> getConnections(AVLtree<Integer> obj) {
@@ -93,14 +113,25 @@ public class AVL_Ops extends LocalJavaAnimation {
 		}
 
 		@Override
-		public int getMaxComponentsPerRow(AVLtree<Integer> obj) {
-			return 2;
-		}
-
-		@Override
 		public String getValue(AVLtree<Integer> obj) {
 			return "";
 		}
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.VerticalTree;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return 2.5;
+        }
+
 		
 	}
 
@@ -110,7 +141,7 @@ public class AVL_Ops extends LocalJavaAnimation {
 	public void quickInsert (AVLtree<Integer> tree, int element)
 	{ 
 		if (tree.root != null)
-			tree.root = tree.root.quickinsert(element);
+			tree.root = tree.root.quickInsert(element);
 		else
 			tree.root = new avlNode<Integer>(element);
 	}
@@ -205,7 +236,7 @@ public class AVL_Ops extends LocalJavaAnimation {
 		});
 		
 		
-		register("clear tree", new MenuFunction() {
+		/*register("clear tree", new MenuFunction() {
 
 			@Override
 			public void selected() {
@@ -213,7 +244,7 @@ public class AVL_Ops extends LocalJavaAnimation {
 				//bst.treeSize = 0;
 			}
 			
-		});
+		});*/
 
 	}
 	
