@@ -3,3 +3,8 @@
 **/.gradle/
 **/*.log
 **/.vscode/
+**/.project
+**/.classpath
+**/.settings/
+**/*.log.lck
+

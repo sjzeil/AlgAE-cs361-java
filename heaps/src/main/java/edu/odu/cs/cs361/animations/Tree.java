@@ -100,7 +100,7 @@ public class Tree implements Renderer<Tree>, CanBeRendered<Tree> {
 
     @Override
     public Color getColor(Tree obj) {
-        return new Color(java.awt.Color.TRANSLUCENT);
+        return edu.odu.cs.AlgAE.Common.Snapshot.Color.transparent;
     }
 
     @Override

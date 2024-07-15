@@ -260,7 +260,7 @@ class MaxHeap<E>
 
     @Override
     public Color getColor(MaxHeap<E> h) {
-        return null;
+        return new Color(255,255,200);
     }
 
     @Override
