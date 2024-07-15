@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import edu.odu.cs.AlgAE.Animations.LocalJavaAnimation;
+import edu.odu.cs.AlgAE.Common.Snapshot.Entity.Directions;
 import edu.odu.cs.AlgAE.Server.MenuFunction;
 import edu.odu.cs.AlgAE.Server.MemoryModel.Component;
 import edu.odu.cs.AlgAE.Server.MemoryModel.Connection;
@@ -25,7 +26,7 @@ public class HeapDemo extends LocalJavaAnimation {
 		"prepared for CS 361, \n" +
 		"Advanced Data Structures and Algorithms,\n" +
 		"Old Dominion University\n" +
-				"Summer 2011";
+				"Summer 2024";
 	}
 
 	boolean displayParentPointers = false;
@@ -58,10 +59,6 @@ public class HeapDemo extends LocalJavaAnimation {
 			results.add (rightC);
 			return results;
 		}
-		@Override
-		public int getMaxComponentsPerRow(heaps.heapnode obj) {
-			return 0;
-		}
 		
 		@Override
 		public String getValue(heaps.heapnode obj) {
@@ -69,6 +66,21 @@ public class HeapDemo extends LocalJavaAnimation {
 			int v = t.heap.data.get(t.index);
 			return "" + v;
 		}
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return false;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Vertical;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return null;
+        }
 			
 	}
 	
@@ -96,31 +108,37 @@ public class HeapDemo extends LocalJavaAnimation {
 		}
 
 		@Override
-		public int getMaxComponentsPerRow(heaps obj) {
-			return 100;
-		}
-
-		@Override
 		public String getValue(heaps obj) {
 			return "";
 		}
+
+        @Override
+        public Boolean getClosedOnConnections() {
+            return true;
+        }
+
+        @Override
+        public Directions getDirection() {
+            return Directions.Horizontal;
+        }
+
+        @Override
+        public Double getSpacing() {
+            return 2.0;
+        }
 		
 	}
 
 
 
 	
-	public void createSampleHeap(heaps heap) {
-		heap.resize(0);
-		int[] data = {66, 58, 63, 55, 48, 60, 11, 14, 53, 47};
-		for (int i = 0; i < data.length; ++i) {
-			int k = data[i];
-			heap.quickAdd(k);
-		}
+	public void createSampleHeap(MaxHeap<Integer> heap) {
+		Integer[] data = {66, 58, 63, 55, 48, 60, 11, 14, 53, 47};
+        heap.buildFrom(data);
 	}
 
 	
-	heaps heap = new heaps();
+	MaxHeap<Integer> heap = new MaxHeap<>();
 	Random rand = new Random();
 	boolean isAHeap = false;
 	
@@ -148,7 +166,11 @@ public class HeapDemo extends LocalJavaAnimation {
 			public void selected() {
 				String szS = promptForInput("How many nodes?", "[0-9]+");
 				int sz = Integer.parseInt(szS);
-				heap.resize(sz);
+                Integer[] data = new Integer[sz];
+                for (int i = 0; i < sz; ++i) {
+                    data[i] = rand.nextInt(100);
+                }
+				heap.unHeap(data);
 				isAHeap = (sz <= 1);
 			}
 		});
@@ -157,7 +179,7 @@ public class HeapDemo extends LocalJavaAnimation {
 
 			@Override
 			public void selected() {
-				heap.resize(0);
+				heap.clear();
 				isAHeap = true;
 			}
 		});
@@ -166,7 +188,12 @@ public class HeapDemo extends LocalJavaAnimation {
 
 			@Override
 			public void selected() {
-				heap.heapsort (0, heap.data.size(), null);
+                java.util.ArrayList<Integer> values = new java.util.ArrayList<>();
+                for (Object obj: heap.getArr()) {
+                    Integer i = (Integer)obj;
+                    values.add(i);
+                }
+				MaxHeap.heapSort (values);
 				isAHeap = false;
 			}
 			
@@ -176,7 +203,7 @@ public class HeapDemo extends LocalJavaAnimation {
 
 			@Override
 			public void selected() {
-				heaps.build_heap(heap, null);
+				heap.buildHeap();
 				isAHeap = true;
 			}
 			
@@ -192,7 +219,7 @@ public class HeapDemo extends LocalJavaAnimation {
 					for (String x0: vals) {
 						try { 
 							int x = Integer.parseInt(x0);
-							heaps.add_to_heap(heap, x, null);
+							heap.insert(x);
 						} catch (Exception e) {}
 					}
 				} else {
@@ -207,7 +234,7 @@ public class HeapDemo extends LocalJavaAnimation {
 			@Override
 			public void selected() {
 				if (isAHeap) {
-					heaps.remove_from_heap(heap, null);
+					heap.remove();
 				} else {
 					promptForInput("You must build the heap, first.", ".*");
 				}

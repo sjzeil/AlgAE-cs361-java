@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
+import edu.odu.cs.AlgAE.Common.Snapshot.Entity.Directions;
 import edu.odu.cs.AlgAE.Server.MemoryModel.Component;
 import edu.odu.cs.AlgAE.Server.MemoryModel.Connection;
 import edu.odu.cs.AlgAE.Server.Rendering.CanBeRendered;
@@ -63,15 +64,26 @@ public class HeapIterator implements Renderer<HeapIterator>, CanBeRendered<HeapI
 
 
 
-
-	@Override
-	public int getMaxComponentsPerRow(HeapIterator obj) {
-		return 1;
-	}
-
-
 	@Override
 	public Renderer<HeapIterator> getRenderer() {
 		return this;
 	}
+
+
+    @Override
+    public Boolean getClosedOnConnections() {
+        return false;
+    }
+
+
+    @Override
+    public Directions getDirection() {
+        return Directions.Vertical;
+    }
+
+
+    @Override
+    public Double getSpacing() {
+        return null;
+    }
 }

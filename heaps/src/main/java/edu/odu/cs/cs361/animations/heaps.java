@@ -1,7 +1,7 @@
-package edu.odu.cs.cs361.animations;//!
+package edu.odu.cs.cs361.animations;
 
 import java.awt.Color;//!
-import java.util.ArrayList;//!
+import java.util.ArrayList;
 
 import edu.odu.cs.AlgAE.Server.MemoryModel.ActivationRecord;//!
 import static edu.odu.cs.AlgAE.Server.LocalServer.activate;//!
