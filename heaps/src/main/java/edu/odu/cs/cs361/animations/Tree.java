@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import edu.odu.cs.AlgAE.Common.Snapshot.Entity.Directions;
+import edu.odu.cs.AlgAE.Server.MemoryModel.ActivationRecord;
 import edu.odu.cs.AlgAE.Server.MemoryModel.Component;
 import edu.odu.cs.AlgAE.Server.MemoryModel.Connection;
 import edu.odu.cs.AlgAE.Server.Rendering.CanBeRendered;
@@ -21,7 +22,7 @@ public class Tree implements Renderer<Tree>, CanBeRendered<Tree> {
 			this.index = index;
 		}
 
-        		@Override
+        @Override
 		public Color getColor(TreeNode obj) {
 			return Color.cyan;
 		}
@@ -50,7 +51,7 @@ public class Tree implements Renderer<Tree>, CanBeRendered<Tree> {
 		
 		@Override
 		public String getValue(TreeNode t) {
-			Object v = mirrors[t.index];
+			Object v = mirrors.getArr()[t.index];
 			return v.toString();
 		}
 
@@ -73,24 +74,26 @@ public class Tree implements Renderer<Tree>, CanBeRendered<Tree> {
         public Renderer<TreeNode> getRenderer() {
             return this;
         }
-			
+
 	}
 	
 	
 
 
 
-    private Object[] mirrors;
+    @SuppressWarnings("rawtypes")
+    private MaxHeap mirrors;
     private int size;
     private ArrayList<TreeNode> nodes;
 
-    public Tree(Object[] mirroring) {
+    public Tree(@SuppressWarnings("rawtypes") MaxHeap mirroring) {
         mirrors = mirroring;
         size = 0;
         nodes = new ArrayList<>();
     }
 
-    public void setSize(int n) {
+    private void setSize() {
+        int n = mirrors.heapSize();
         size = n;
         while (n > nodes.size()) {
             nodes.add(new TreeNode(nodes.size()));
@@ -106,13 +109,15 @@ public class Tree implements Renderer<Tree>, CanBeRendered<Tree> {
     @Override
     public List<Component> getComponents(Tree t) {
         java.util.LinkedList<Component> comps = new LinkedList<Component>();
-        for (int i = 0; i < size; ++i)
+        setSize();
+        for (int i = 0; i < mirrors.heapSize(); ++i)
             comps.add (new Component(nodes.get(i)));
         return comps;
     }
 
     @Override
     public List<Connection> getConnections(Tree t) {
+        setSize();
         LinkedList<Connection> conns =  new LinkedList<Connection>();
         return conns;
     }
@@ -124,7 +129,7 @@ public class Tree implements Renderer<Tree>, CanBeRendered<Tree> {
 
     @Override
     public Boolean getClosedOnConnections() {
-        return true;
+        return false;
     }
 
     @Override
@@ -141,5 +146,11 @@ public class Tree implements Renderer<Tree>, CanBeRendered<Tree> {
     public Renderer<Tree> getRenderer() {
         return this;
     }
+
+    public void highlightNode(int pos, java.awt.Color color, ActivationRecord aRec) {
+        setSize();
+        aRec.highlight(nodes.get(pos), color);
+    }
+        
 
 }
